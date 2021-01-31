@@ -41,6 +41,8 @@ if /i "%2"=="sol" (
     )
     goto default
 )
+if /i "%2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
+if /i "%2"=="br" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset & goto:eof
 goto default
 :solargparse
 if "%solArg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
@@ -49,7 +51,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script 20201222
+echo. IPMI script 20201225
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -60,7 +62,9 @@ echo.   ipmi ^<IP^> SOL                             Collect SOL log to %fn%
 echo.   ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]       Collect SOL log to %cd%\^<FileName^>
 echo.   ipmi ^<IP^> [t]                             Ping
 echo.   ipmi ^<IP^> c                               Connection monitor
-echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter(s).
+echo.   ipmi ^<IP^> BIOS                            Force to enter BIOS setup on next boot
+echo.   ipmi ^<IP^> BR                              Force to enter BIOS setup on next boot and reset immediately
+echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter(s)
 echo.
 echo. Examples:
 echo.   ipmi 255 arg1 arg2 arg3
@@ -106,7 +110,7 @@ echo.
 goto:eof
 
 :connectionMonitor
-set /a cmMaxRetry=2
+set /a cmMaxRetry=3
 title %hostExec%
 set "cmWf=%cd%\ConnectionLogs"
 if not exist %cmWf% md %cmWf%
