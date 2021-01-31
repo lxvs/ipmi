@@ -1,13 +1,25 @@
 @echo off
-rem > IPMI script by Johnny Appleseed <lllxvs@gmail.com>
-rem > Updated on 20201111
-rem > Usage:
-rem >   Put it together with ipmitool.
-rem >   In CMD, execute 
-rem >      ipmi 255 arg1 arg2 arg3
-rem >   which stands for
-rem >      ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
-if "%1" EQU "" (goto:eof)
-if "%2" EQU "" (goto:eof)
-@echo on
+if "%1" EQU "" (goto usage)
+set /a host=%1
+if %host% NEQ %1 (goto usage)
+if "%2" EQU "" (
+    ping 100.2.76.%1
+    goto:eof
+)
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%*
+goto:eof
+:usage
+echo.
+echo. IPMI script by Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^> Updated on 20201115
+echo. 
+echo. Usage:
+echo.
+echo.   ipmi 255 arg1 arg2 arg3
+echo.   stands for:
+echo.   ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
+echo.
+echo.   ipmi 255
+echo.   stands for:
+echo.   ping 100.2.76.255
+echo.
+goto:eof
