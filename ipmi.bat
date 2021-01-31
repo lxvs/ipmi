@@ -2,11 +2,6 @@
 setlocal
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
-REM cmLogLvl determines what will be writen to the log file located in ConnectionLogs folder.
-REM     0: nothing.
-REM     1: only what shows in console.
-REM     2: connection retries before anounce bad, and http code changes, besides logs of lower level.
-REM     3: every ping and http code results, besides logs of lower levels.
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
@@ -89,7 +84,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script updated on 20210105
+echo. IPMI script v.2021.1.5
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -99,21 +94,24 @@ call:LFN *IP* fn
 echo.   ipmi ^<IP^> SOL                             Collect SOL log to %fn%
 echo.   ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]       Collect SOL log to %cd%\^<FileName^>
 echo.   ipmi ^<IP^> [t]                             Ping
-echo.   ipmi ^<IP^> cm                              Connection monitor
-echo.   ipmi ^<IP^> c                               Connection monitor upgraded: also monitors if bmc web is ready
 echo.   ipmi ^<IP^> BIOS                            Force to enter BIOS setup on next boot
 echo.   ipmi ^<IP^> BR                              Force to enter BIOS setup on next boot and reset immediately
+echo.   ipmi ^<IP^> cm                              Connection monitor legacy
+echo.   ipmi ^<IP^> c [-L ^<L^>] [-M ^<M^>]             Connection monitor upgraded: also monitors if bmc web is ready.
+echo.                                                 ^<L^> for Log level:
+echo.                                                         0: Do not write any log.
+echo.                                                         1: Log only what shows in console.
+echo.                                                         2: (default) Also log retries before anouncing a bad
+echo.                                                            connection, and http code changes.
+echo.                                                         3: Also log every ping and http code result.
+echo.                                                 ^<M^> for Max retry:  (default: 3)
+echo.                                                         Retrying times before anouncing a bad connection.
 echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter(s)
 echo.
 echo. Examples:
 echo.   ipmi 255 arg1 arg2 arg3
 echo.     stands for:
 echo.   ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
-echo.
-echo.   ipmi 254.255 t
-echo.     stands for:
-echo.   ping 100.2.254.255 -t
-echo.
 goto:eof
 
 :LFN
