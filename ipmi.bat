@@ -1,5 +1,11 @@
 @echo off
 setlocal
+set /a loglevel=2
+REM loglevel determines what will be writen to the log file located in ConnectionLogs folder.
+REM     0: nothing.
+REM     1: only what shows in console.
+REM     2: connection retries before anounce bad, and http code changes, besides logs of lower level.
+REM     3: every ping and http code results, besides logs of lower levels.
 if "%1"=="" goto usage
 echo %1 | findstr /i "? help usage" >NUL && goto usage
 call:hostparse %1 hostpre
@@ -216,7 +222,11 @@ goto loop
 :write
 if not exist %cmWf% md %cmWf%
 set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
-if "%2" NEQ "1" (set cmLogMsg=%~1) else set "cmLogMsg=  ~%~1"
-if "%2" NEQ "1" (echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log) & echo %cmTimeStamp% %cmLogMsg%
-echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.verbose.log
+set lvl=%2
+if "lvl"=="" (set /a lvl=0) else set /a lvl=lvl
+if %lvl%==0 echo %cmTimeStamp% %cmLogMsg%
+if %loglevel% LEQ 0 goto:eof
+echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log
+if %loglevel% LEQ 1 goto:eof
+if %lvl% LSS %loglevel% echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.verbose.log
 goto:eof
