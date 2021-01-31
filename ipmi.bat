@@ -132,10 +132,10 @@ if /i "%TtlSeg:~,3%"=="TTL" (
             for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
                 if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
                 if "%%i"=="000" (
-                    call:write "Connection is good, but BMC web is not ready!"
+                    call:write "BMC web is not ready!"
                     set cmBmcWebStatus=b
                 ) else (
-                    call:write "All good, BMC web is ready."
+                    call:write "BMC web is ready."
                     set cmBmcWebStatus=g
                 )
             )
@@ -153,7 +153,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
             for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
                 if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
                 if "%%i"=="000" (
-                    call:write "Became good, but BMC web is not ready!"
+                    call:write "BMC web is not ready!"
                     set cmBmcWebStatus=b
                 ) else (
                     call:write "BMC web is ready."
@@ -177,11 +177,11 @@ if /i "%TtlSeg:~,3%"=="TTL" (
             if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
             if "%%i"=="000" (
                 if "%cmBmcWebStatus%"=="g" (
-                    call:write "Connection is good, but BMC web became bad!"
+                    call:write "BMC web got lost!"
                     set cmBmcWebStatus=b)
             ) else (
                 if "%cmBmcWebStatus%"=="b" (
-                    call:write "Good, BMC web is ready."
+                    call:write "BMC web is ready."
                     set cmBmcWebStatus=g)
             )
         )
@@ -212,7 +212,7 @@ call:write "Bad, retried = %cmRetried%." 1
 goto loop
 :writebad
 title %hostExec%: bad!
-call:write "The connection went to bad!"
+call:write "Connection went to bad!"
 goto loop
 :write
 if not exist %cmWf% md %cmWf%
@@ -221,5 +221,5 @@ if "%2" NEQ "1" (
     echo %cmTimeStamp%: %~1
     set cmLogMsg=%~1
 ) else set "cmLogMsg=  ~%~1"
-echo %cmTimeStamp%: %cmLogMsg% >> %cmWf%\%hostExec%.log
+echo %cmTimeStamp%: %cmLogMsg%>>%cmWf%\%hostExec%.log
 goto:eof
