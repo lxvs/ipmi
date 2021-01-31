@@ -49,7 +49,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script 20201215
+echo. IPMI script 20201222
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -113,26 +113,30 @@ if not exist %cmWf% md %cmWf%
 set cmCurrentStatus=
 call:write "------- Started -------"
 :loop
-for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & (ping localhost -n 2 >NUL) & goto afterfor
+for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
 :afterfor
 if /i "%TtlSeg:~,3%"=="TTL" (
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
         title %hostExec%: good
         call:write "Connection is good."
+        ping localhost -n 2 >NUL
         goto loop
     )
     if /i "%cmCurrentStatus%" EQU "b" (
         set cmCurrentStatus=g
         title %hostExec%: good
         call:write "Became good."
+        ping localhost -n 2 >NUL
         goto loop
     )
     if /i "%cmCurrentStatus:~,1%" EQU "b" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
+        ping localhost -n 2 >NUL
         goto loop
     )
+    ping localhost -n 2 >NUL
     goto loop
 )
 if not defined cmCurrentStatus (
