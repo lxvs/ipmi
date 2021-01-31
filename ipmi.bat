@@ -33,7 +33,8 @@ set hostExec=%hostpre%%1
 if "%2"=="" ping %hostExec% -n 2 & goto:eof
 if /i "%2"=="t" if "%3"=="" ping -t %hostExec% & goto:eof
 if /i "%2"=="-t" if "%3"=="" ping -t %hostExec% & goto:eof
-if /i "%2"=="c" if "%3"=="" goto connectionMonitor
+if /i "%2"=="cm" if "%3"=="" (set cmVer=0) & goto connectionMonitor
+if /i "%2"=="c" if "%3"=="" (set cmVer=1) & goto connectionMonitor
 if /i "%2"=="sol" (
     if "%3"=="" ((call:SOL %1) & goto:eof)
     if "%4"=="" (
@@ -52,7 +53,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script updated on 20201228
+echo. IPMI script updated on 20201230
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -62,7 +63,8 @@ call:LFN *IP* fn
 echo.   ipmi ^<IP^> SOL                             Collect SOL log to %fn%
 echo.   ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]       Collect SOL log to %cd%\^<FileName^>
 echo.   ipmi ^<IP^> [t]                             Ping
-echo.   ipmi ^<IP^> c                               Connection monitor
+echo.   ipmi ^<IP^> cm                              Connection monitor
+echo.   ipmi ^<IP^> c                               Connection monitor upgraded: also monitors if bmc web is ready
 echo.   ipmi ^<IP^> BIOS                            Force to enter BIOS setup on next boot
 echo.   ipmi ^<IP^> BR                              Force to enter BIOS setup on next boot and reset immediately
 echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter(s)
@@ -124,15 +126,40 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
         title %hostExec%: good
-        call:write "Connection is good."
-        ping localhost -n 2 >NUL
+        if "%cmver%"=="1" (
+            for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+                if "%%i"=="000" (
+                    call:write "Connection is good, but BMC not ready!"
+                    set cmBmcWebStatus=b
+                ) else (
+                    call:write "Good, BMC web is ready."
+                    set cmBmcWebStatus=g
+                )
+            )
+        ) else (
+            call:write "Connection is good."
+            ping localhost -n 2 >NUL
+        )
         goto loop
     )
     if /i "%cmCurrentStatus%" EQU "b" (
         set cmCurrentStatus=g
         title %hostExec%: good
-        call:write "Became good."
-        ping localhost -n 2 >NUL
+        
+        if "%cmver%"=="1" (
+            for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+                if "%%i"=="000" (
+                    call:write "Became good, but BMC not ready!"
+                    set cmBmcWebStatus=b
+                ) else (
+                    call:write "Good, BMC web is ready."
+                    set cmBmcWebStatus=g
+                )
+            )
+        ) else (
+            call:write "Became good."
+            ping localhost -n 2 >NUL
+        )
         goto loop
     )
     if /i "%cmCurrentStatus:~,1%" EQU "b" (
@@ -141,7 +168,21 @@ if /i "%TtlSeg:~,3%"=="TTL" (
         ping localhost -n 2 >NUL
         goto loop
     )
-    ping localhost -n 2 >NUL
+    if "%cmver%"=="1" (
+        for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+            if "%%i"=="000" (
+                if "%cmBmcWebStatus%"=="g" (
+                    call:write "Connection is good, but BMC web became bad!"
+                    set cmBmcWebStatus=b)
+            ) else (
+                if "%cmBmcWebStatus%"=="b" (
+                    call:write "Good, BMC web is ready."
+                    set cmBmcWebStatus=g)
+            )
+        )
+    ) else (
+        ping localhost -n 2 >NUL
+    )
     goto loop
 )
 if not defined cmCurrentStatus (
