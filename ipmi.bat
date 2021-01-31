@@ -86,7 +86,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script v.2021.1.8
+echo. IPMI script v.2021.1.13
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -139,7 +139,7 @@ echo.^> Log file saved to %solLfn%
 echo.^> Activate SOL...
 echo.
 explorer /select,"%solLfn%"
-ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate >> %solLfn%
+(ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate)> %solLfn%
 goto:eof
 
 :err
@@ -254,7 +254,7 @@ if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
 if not exist "%cmWf%" md "%cmWf%"
 if %cmLogLvl% LEQ 0 goto:eof
-if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg% >> "%cmWf%\%hostExec%.log"
+if %cmMsgLvl%==0 (echo %cmTimeStamp% %cmLogMsg%)>> "%cmWf%\%hostExec%.log"
 if %cmLogLvl% LEQ 1 goto:eof
-if %cmMsgLvl% LSS %cmLogLvl% echo %cmTimeStamp% %cmLogMsg% >> "%cmWf%\%hostExec%.verbose.log"
+if %cmMsgLvl% LSS %cmLogLvl% (echo %cmTimeStamp% %cmLogMsg%)>> "%cmWf%\%hostExec%.verbose.log"
 goto:eof
