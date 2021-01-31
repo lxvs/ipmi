@@ -86,7 +86,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script v.2021.1.5
+echo. IPMI script v.2021.1.8
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -206,7 +206,7 @@ if "%cmMaxRetry%" GTR "0" (
 ) else goto writebad
 :gethttpcode
 for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
-    call:write "DEBUG: HTTP code change:    %cmLastHttpCode% to %%i" 8
+    call:write "DEBUG: HTTP code updated:   %cmLastHttpCode% to %%i" 8
     call:write "DEBUG: BMC web status:      %cmBmcWebStatus%" 8
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
@@ -242,7 +242,7 @@ set cmCurrentStatus=b
 set cmBmcWebStatus=
 set cmLastHttpCode=
 title %hostExec%: bad!
-call:write "Connection went to bad!"
+call:write "Connection went bad!"
 goto loop
 :write
 set cmMsgLvl=%2
