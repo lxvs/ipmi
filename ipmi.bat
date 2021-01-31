@@ -1,7 +1,7 @@
 @echo off
 setlocal
-set /a loglevel=2
-REM loglevel determines what will be writen to the log file located in ConnectionLogs folder.
+set /a cmLogLvl=2
+REM cmLogLvl determines what will be writen to the log file located in ConnectionLogs folder.
 REM     0: nothing.
 REM     1: only what shows in console.
 REM     2: connection retries before anounce bad, and http code changes, besides logs of lower level.
@@ -40,7 +40,13 @@ if "%2"=="" ping %hostExec% -n 2 & goto:eof
 if /i "%2"=="t" if "%3"=="" ping -t %hostExec% & goto:eof
 if /i "%2"=="-t" if "%3"=="" ping -t %hostExec% & goto:eof
 if /i "%2"=="cm" if "%3"=="" (set cmVer=0) & goto connectionMonitor
-if /i "%2"=="c" if "%3"=="" (set cmVer=1) & goto connectionMonitor
+if /i "%2"=="c" (
+    set cmVer=1
+    if "%3"=="" goto connectionMonitor
+    set /a cmLogLvlTmp=%3
+    if "%cmLogLvlTmp%"=="%3" set /a cmLogLvl=cmLogLvlTmp
+    goto connectionMonitor
+    )
 if /i "%2"=="sol" (
     if "%3"=="" ((call:SOL %1) & goto:eof)
     if "%4"=="" (
@@ -206,15 +212,15 @@ title %hostExec%: bad!
 call:write "Connection went to bad!"
 goto loop
 :write
-set lvl=%2
-if "lvl"=="" (set /a lvl=0) else set /a lvl=lvl
-if %lvl% GEQ %loglevel% goto:eof
+set cmMsgLvl=%2
+if "cmMsgLvl"=="" (set /a cmMsgLvl=0) else set /a cmMsgLvl=cmMsgLvl
+if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
 if not exist %cmWf% md %cmWf%
 set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
 set "cmLogMsg=%~1"
-if %lvl%==0 echo %cmTimeStamp% %cmLogMsg%
-if %loglevel% LEQ 0 goto:eof
-if %lvl%==0 echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log
-if %loglevel% LEQ 1 goto:eof
-if %lvl% LSS %loglevel% echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.verbose.log
+if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
+if %cmLogLvl% LEQ 0 goto:eof
+if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log
+if %cmLogLvl% LEQ 1 goto:eof
+if %cmMsgLvl% LSS %cmLogLvl% echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.verbose.log
 goto:eof
