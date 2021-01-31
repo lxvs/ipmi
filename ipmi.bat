@@ -171,6 +171,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
         title %hostExec%: good
+        if "%cmver%"=="1" call:write "DEBUG: calling GHC because status is not defined." 8
         if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready." 1) else call:write "Connection is good."
         ping localhost -n 2 >NUL
         goto loop
@@ -178,6 +179,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     if /i "%cmCurrentStatus%" EQU "b" (
         set cmCurrentStatus=g
         title %hostExec%: good
+        if "%cmver%"=="1" call:write "DEBUG: calling GHC because status turns good." 8
         if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready.") else call:write "Became good."
         ping localhost -n 2 >NUL
         goto loop
@@ -185,10 +187,12 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     if /i "%cmCurrentStatus:~,1%" EQU "b" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
+        if "%cmver%"=="1" call:write "DEBUG: calling GHC because of jitters." 8
         if "%cmver%"=="1" call:gethttpcode "BMC web is not ready!" "BMC web is ready."
         ping localhost -n 2 >NUL
         goto loop
     )
+    if "%cmver%"=="1" call:write "DEBUG: calling GHC mandatorily." 8
     if "%cmver%"=="1" call:gethttpcode "BMC web got lost!" "BMC web is ready."
     ping localhost -n 2 >NUL
     goto loop
@@ -204,6 +208,8 @@ if "%cmMaxRetry%" GTR "0" (
 ) else goto writebad
 :gethttpcode
 for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+    call:write "DEBUG: HTTP code change:    %cmLastHttpCode% -^> %%i" 8
+    call:write "DEBUG: BMC web status:      %cmBmcWebStatus%" 8
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
     if "%%i"=="000" (
@@ -243,6 +249,7 @@ goto loop
 :write
 set cmMsgLvl=%2
 if "cmMsgLvl"=="" (set /a cmMsgLvl=0) else set /a cmMsgLvl=cmMsgLvl
+if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
 set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
 set "cmLogMsg=%~1"
 if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
