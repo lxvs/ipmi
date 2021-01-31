@@ -40,7 +40,7 @@ if "%solarg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script 20201127
+echo. IPMI script 20201202
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -66,10 +66,11 @@ goto:eof
 :LFN
 set "month=%date:~5,2%"
 set "year=%date:~,4%"
-if "%date:~8,1%"=="0" (set "day=%date:~9,1%") else set "day=%date:~8,2%"
+set "day=%date:~8,2%"
+set "wf=%cd%\SOLlogs\%year%%month%%day%"
 if "%time:~0,1%"==" " (set "hm=0%time:~1,1%%time:~3,2%") else set "hm=%time:~0,2%%time:~3,2%"
-if "%3"=="1" if not exist "SOLlogs\%year%%month%%day%" md "SOLlogs\%year%%month%%day%"
-set "%2=%cd%\SOLlogs\%year%%month%%day%\%1.%hm%.log"
+if "%3"=="1" if not exist "%wf%" md "%wf%"
+set "%2=%wf%\%1.%hm%.log"
 goto:eof
 
 :SOL
