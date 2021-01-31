@@ -16,19 +16,20 @@ echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
 echo.
-echo.   ipmi ^<last section of IP^> [t]                         Ping
-echo.   ipmi ^<last section of IP^> [arg1 [arg2 [arg3 [...]]]   Send IPMITool commands
+echo.   ipmi ^<last section of IP^> arg1 [arg2 [...]]   Send IPMITool commands
 call:LFN xxx fn
-echo.   ipmi ^<last section of IP^> SOL                         Collect SOL log to %fn%
+echo.   ipmi ^<last section of IP^> SOL                 Collect SOL log to %fn%
+echo.   ipmi ^<last section of IP^> [t]                 Ping
+echo.   ipmi [arg1 [arg2 [...]]]                      Get ipmitool help on specific parameter(s).
 echo.
 echo. Examples:
 echo.   ipmi 255 arg1 arg2 arg3
-echo.     stands for
+echo.     stands for:
 echo.   ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
 echo.
-echo.   ipmi 255
+echo.   ipmi t 255
 echo.     stands for:
-echo.   ping 100.2.76.255
+echo.   ping -t 100.2.76.255
 echo.
 goto:eof
 
@@ -47,11 +48,16 @@ echo.^> Deactivating previous SOL...
 echo.
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%1 sol deactivate
 call:LFN %1 logfilename 1
-type nul> %logfilename%
+type nul> %logfilename% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & exit /b)
 echo.
 echo.^> Log file saved to %logfilename%
 echo.^> Activate SOL...
 echo.
 explorer /select,"%logfilename%"
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%1 sol activate >> %logfilename%
+goto:eof
+
+:err
+echo.
+echo.^> %1 error (%2): %~3
 goto:eof
