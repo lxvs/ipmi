@@ -2,13 +2,13 @@
 setlocal
 if "%1"=="" goto usage
 call:hostparse %1 hostpre
-if not defined hostpre (call:err Warning 50 "Something wired happend during host parsing.") & goto usage
-if "hostpre" EQU "crierr" goto:eof
-if "hostpre" EQU "notint" ipmitool %* & goto:eof
+if not defined hostpre (call:err Warning 50 "Something strange happend during host parsing.") & goto usage
+if "%hostpre%" EQU "crierr" goto:eof
+if "%hostpre%" EQU "notint" ipmitool %* & goto:eof
 goto exec
 :hostparse
 set /a host=%1 2>NUL || goto hostparsestart
-if "%host%" NEQ "%1" set "%2=notint"
+if "%host%" NEQ "%1" (set "%2=notint") & goto:eof
 set "%2=100.2.76."
 goto:eof
 :hostparsestart
@@ -36,20 +36,20 @@ if /i "%2"=="c" if "%3"=="" goto connectionMonitor
 if /i "%2"=="sol" (
     if "%3"=="" ((call:SOL %1) & goto:eof)
     if "%4"=="" (
-        set solarg=%3
+        set solArg=%3
         goto solargparse
     )
     goto default
 )
 goto default
 :solargparse
-if "%solarg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
-if "%solarg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
+if "%solArg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
+if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 :default
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script 20201214
+echo. IPMI script 20201215
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -74,13 +74,13 @@ echo.
 goto:eof
 
 :LFN
-set "month=%date:~5,2%"
-set "year=%date:~,4%"
-set "day=%date:~8,2%"
-set "wf=%cd%\SOLlogs\%year%%month%%day%"
-if "%time:~0,1%"==" " (set "hm=0%time:~1,1%%time:~3,2%") else set "hm=%time:~0,2%%time:~3,2%"
-if "%3"=="1" if not exist "%wf%" md "%wf%"
-set "%2=%wf%\%1.%hm%.log"
+set "lfnMonth=%date:~5,2%"
+set "lfnYear=%date:~,4%"
+set "lfnDay=%date:~8,2%"
+set "lfnWf=%cd%\SolLogs\%lfnYear%%lfnMonth%%lfnDay%"
+if "%time:~0,1%"==" " (set "lfnHm=0%time:~1,1%%time:~3,2%") else set "lfnHm=%time:~0,2%%time:~3,2%"
+if "%3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
+set "%2=%lfnWf%\%1.%lfnHm%.log"
 goto:eof
 
 :SOL
@@ -88,15 +88,15 @@ echo.
 echo.^> Deactivating previous SOL...
 echo.
 ipmitool -I lanplus -U admin -P admin -H %hostExec% sol deactivate
-if "%2" NEQ "" set logfilename=%cd%\%2
-if not defined logfilename (call:LFN %hostExec% logfilename 1)
-type nul> %logfilename% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & goto:eof)
+if "%2" NEQ "" set solLfn=%cd%\%2
+if not defined solLfn (call:LFN %hostExec% solLfn 1)
+type nul> %solLfn% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & goto:eof)
 echo.
-echo.^> Log file saved to %logfilename%
+echo.^> Log file saved to %solLfn%
 echo.^> Activate SOL...
 echo.
-explorer /select,"%logfilename%"
-ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate >> %logfilename%
+explorer /select,"%solLfn%"
+ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate >> %solLfn%
 goto:eof
 
 :err
@@ -106,65 +106,65 @@ echo.
 goto:eof
 
 :connectionMonitor
-set /a max=2
+set /a cmMaxRetry=2
 title %hostExec%
-set "wfolder=%cd%\ConnectionLogs"
-if not exist %wfolder% md %wfolder%
-set current=
+set "cmWf=%cd%\ConnectionLogs"
+if not exist %cmWf% md %cmWf%
+set cmCurrentStatus=
 call:write "------- Started -------"
 :loop
-for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set ttl=%%f) & (ping localhost -n 2 >NUL) & goto afterfor
+for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & (ping localhost -n 2 >NUL) & goto afterfor
 :afterfor
-if /i "%ttl:~,3%"=="TTL" (
-    if not defined current (
-        set current=g
+if /i "%TtlSeg:~,3%"=="TTL" (
+    if not defined cmCurrentStatus (
+        set cmCurrentStatus=g
         title %hostExec%: good
         call:write "Connection is good."
         goto loop
     )
-    if /i "%current%" EQU "b" (
-        set current=g
+    if /i "%cmCurrentStatus%" EQU "b" (
+        set cmCurrentStatus=g
         title %hostExec%: good
         call:write "Became good."
         goto loop
     )
-    if /i "%current:~,1%" EQU "b" (
-        set current=g
+    if /i "%cmCurrentStatus:~,1%" EQU "b" (
+        set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
         goto loop
     )
     goto loop
 )
-if not defined current (
-    set current=b
+if not defined cmCurrentStatus (
+    set cmCurrentStatus=b
     title %hostExec%: bad!
     call:write "Connection is bad!"
     goto loop
 )
-if /i "%current%"=="b" goto loop
-if /i "%current:~,1%"=="b" goto trans
-if "%max%" GTR "0" (
-    set current=b0
+if /i "%cmCurrentStatus%"=="b" goto loop
+if /i "%cmCurrentStatus:~,1%"=="b" goto trans
+if "%cmMaxRetry%" GTR "0" (
+    set cmCurrentStatus=b0
     call:write "Bad? retrying." 1
     goto loop
 ) else goto writebad
 :trans
-set /a retried=%current:~-1%
-set /a retried+=1
-set current=b%retried%
-if "%retried%" GEQ "%max%" (set current=b) & goto writebad
-call:write "Bad retried = %retried%." 1
+set /a cmRetried=%cmCurrentStatus:~-1%
+set /a cmRetried+=1
+set cmCurrentStatus=b%cmRetried%
+if "%cmRetried%" GEQ "%cmMaxRetry%" (set cmCurrentStatus=b) & goto writebad
+call:write "Bad cmRetried = %cmRetried%." 1
 goto loop
 :writebad
 title %hostExec%: bad!
 call:write "The connection went to bad!"
 goto loop
 :write
-if not exist %wfolder% md %wfolder%
-set "timestamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time%"
+if not exist %cmWf% md %cmWf%
+set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time%"
 if "%2" NEQ "1" (
-    echo %timestamp%: %~1
-    set logmsg=%~1
-) else set "logmsg=  ~%~1"
-echo %timestamp%: %logmsg% >> %wfolder%\%hostExec%.log
+    echo %cmTimeStamp%: %~1
+    set cmLogMsg=%~1
+) else set "cmLogMsg=  ~%~1"
+echo %cmTimeStamp%: %cmLogMsg% >> %cmWf%\%hostExec%.log
 goto:eof
