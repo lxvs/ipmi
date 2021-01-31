@@ -77,14 +77,10 @@ if /i "%3"=="-M" (
 )
 call:err Warning 760 "Unsupported CM parameter(s) met!"
 :postCmParse
-if "%cmLogLvlTmp%" NEQ "" (
-    set /a cmLogLvlTmpPost=cmLogLvlTmp
-    if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (set /a cmLogLvl=cmLogLvlTmpPost) else call:err Warning 800 "Parameter 'log level' was designated but did not applied."
-)
-if "%cmMaxRetryTmp%" NEQ "" (
-    set /a cmMaxRetryTmpPost=cmMaxRetryTmp
-    if "%cmMaxRetryTmpPost%"=="%cmMaxRetryTmp%" (set /a cmMaxRetry=cmMaxRetryTmpPost) else call:err Warning 840 "Parameter 'max retry' was designated but did not applied."
-)
+set /a cmLogLvlTmpPost=cmLogLvlTmp
+set /a cmMaxRetryTmpPost=cmMaxRetryTmp
+if "%cmLogLvlTmp%" NEQ "" if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (set /a cmLogLvl=cmLogLvlTmpPost) else call:err Warning 800 "Parameter 'log level' was designated but did not applied."
+if "%cmMaxRetryTmp%" NEQ "" if "%cmMaxRetryTmpPost%"=="%cmMaxRetryTmp%" (set /a cmMaxRetry=cmMaxRetryTmpPost) else call:err Warning 840 "Parameter 'max retry' was designated but did not applied."
 goto connectionMonitor
 :solargparse
 if "%solArg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
@@ -93,7 +89,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script updated on 20210104
+echo. IPMI script updated on 20210105
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -246,11 +242,11 @@ goto loop
 :write
 set cmMsgLvl=%2
 if "cmMsgLvl"=="" (set /a cmMsgLvl=0) else set /a cmMsgLvl=cmMsgLvl
-if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
-if not exist "%cmWf%" md "%cmWf%"
 set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
 set "cmLogMsg=%~1"
 if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
+if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
+if not exist "%cmWf%" md "%cmWf%"
 if %cmLogLvl% LEQ 0 goto:eof
 if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg% >> "%cmWf%\%hostExec%.log"
 if %cmLogLvl% LEQ 1 goto:eof
