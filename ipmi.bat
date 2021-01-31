@@ -118,6 +118,7 @@ title %hostExec%
 set "cmWf=%cd%\ConnectionLogs"
 if not exist %cmWf% md %cmWf%
 set cmCurrentStatus=
+set cmBmcWebStatus=
 call:write "------- Started -------"
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
@@ -129,10 +130,10 @@ if /i "%TtlSeg:~,3%"=="TTL" (
         if "%cmver%"=="1" (
             for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
                 if "%%i"=="000" (
-                    call:write "Connection is good, but BMC not ready!"
+                    call:write "Connection is good, but BMC web is not ready!"
                     set cmBmcWebStatus=b
                 ) else (
-                    call:write "Good, BMC web is ready."
+                    call:write "All good, BMC web is ready."
                     set cmBmcWebStatus=g
                 )
             )
@@ -149,7 +150,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
         if "%cmver%"=="1" (
             for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
                 if "%%i"=="000" (
-                    call:write "Became good, but BMC not ready!"
+                    call:write "Became good, but BMC web is not ready!"
                     set cmBmcWebStatus=b
                 ) else (
                     call:write "Good, BMC web is ready."
@@ -187,6 +188,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
 )
 if not defined cmCurrentStatus (
     set cmCurrentStatus=b
+    set cmBmcWebStatus=b
     title %hostExec%: bad!
     call:write "Connection is bad!"
     goto loop
@@ -202,8 +204,8 @@ if "%cmMaxRetry%" GTR "0" (
 set /a cmRetried=%cmCurrentStatus:~-1%
 set /a cmRetried+=1
 set cmCurrentStatus=b%cmRetried%
-if "%cmRetried%" GEQ "%cmMaxRetry%" (set cmCurrentStatus=b) & goto writebad
-call:write "Bad cmRetried = %cmRetried%." 1
+if "%cmRetried%" GEQ "%cmMaxRetry%" (set cmCurrentStatus=b) & (set cmBmcWebStatus=b) & goto writebad
+call:write "Bad, retried = %cmRetried%." 1
 goto loop
 :writebad
 title %hostExec%: bad!
