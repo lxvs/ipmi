@@ -53,6 +53,13 @@ if /i "%2"=="sol" (
     )
     goto default
 )
+if /i "%2"=="fan" (
+    if "%3"=="" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2f & goto:eof
+    if "%3"=="auto" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
+    ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 1
+    ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2c 0xff %3
+    goto:eof
+)
 if /i "%2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
 if /i "%2"=="br" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset & goto:eof
 goto default
@@ -86,7 +93,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script v.2021.1.13
+echo. IPMI script v.2021.1.21
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -103,14 +110,19 @@ echo.   ipmi ^<IP^> c [-L ^<L^>] [-M ^<M^>]             Connection monitor upgra
 echo.                                                 ^<L^> for Log level:
 echo.                                                         0: Do not write any log.
 echo.                                                         1: Log only what shows in console.
-echo.                                                         2: (default) Also log retries before anouncing a bad
+echo.                                                         2: ^(default^) Also log retries before anouncing a bad
 echo.                                                            connection, and http code changes.
 echo.                                                         3: Also log every ping and http code result.
-echo.                                                 ^<M^> for Max retry:  (default: 3)
+echo.                                                 ^<M^> for Max retry:  ^(default: 3^)
 echo.                                                         Retrying times before anouncing a bad connection.
-echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter(s)
+echo.   ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
+echo.   ipmi ^<IP^> fan auto                        ^(Need Porting^) Set fan mode to auto
+echo.   ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(0~100^)
+echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter^(s^)
 echo.
+pause>NUL
 echo. Examples:
+echo.
 echo.   ipmi 255 arg1 arg2 arg3
 echo.     stands for:
 echo.   ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
@@ -195,6 +207,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     ping localhost -n 2 >NUL
     goto loop
 )
+title %hostExec%: bad!
 call:write "ping: bad!" 2
 if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
@@ -241,7 +254,6 @@ goto loop
 set cmCurrentStatus=b
 set cmBmcWebStatus=
 set cmLastHttpCode=
-title %hostExec%: bad!
 call:write "Connection went bad!"
 goto loop
 :write
