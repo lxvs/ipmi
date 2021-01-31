@@ -59,12 +59,6 @@ if /i "%2"=="fan" (
     if "%3"=="auto" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 1
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2c 0xff %3
-    if %errorLevel% GTR 0 (
-        echo.
-        echo. It seems that an error occured
-        echo. But the fan mode has been set to manual
-        echo. Use "ipmi %hostExec% fan 0" to set fan mode to auto if needed
-    )
     goto:eof
 )
 if /i "%2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
@@ -100,7 +94,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script v.2021.1.21
+echo. IPMI script v.2021.1.23
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
