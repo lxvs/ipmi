@@ -1,7 +1,9 @@
 @echo off
 setlocal
+REM Default values are set here
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
+REM Default Values end
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
@@ -154,10 +156,12 @@ set cmBmcWebStatus=
 set cmLastHttpCode=
 call:write "----------------------------------------------------------------"
 call:write "Host:           %hostExec%"
-call:write "Log folder:     %cmWf%"
 call:write "Max retry:      %cmMaxRetry%"
-if "%cmVer%"=="1" ^
+if "%cmVer%"=="1" (
 call:write "Log level:      %cmLogLvl%"
+if %cmLogLvl% GTR 0 ^
+call:write "Log folder:     %cmWf%"
+) else call:write "Log folder:     %cmWf%"
 call:write "----------------------------------------------------------------"
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
@@ -181,7 +185,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     if /i "%cmCurrentStatus:~,1%" EQU "b" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
-        if "%cmver%"=="1" call:gethttpcode "BMC web is not ready!" "BMC web is ready.
+        if "%cmver%"=="1" call:gethttpcode "BMC web is not ready!" "BMC web is ready."
         ping localhost -n 2 >NUL
         goto loop
     )
@@ -190,11 +194,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     goto loop
 )
 call:write "ping: bad!" 2
-if not defined cmCurrentStatus (
-    set cmCurrentStatus=b
-    set cmBmcWebStatus=b
-    goto writebad
-)
+if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
 if /i "%cmCurrentStatus:~,1%"=="b" goto trans
 if "%cmMaxRetry%" GTR "0" (
@@ -230,10 +230,13 @@ set /a cmRetried=%cmCurrentStatus:~-1%
 set /a cmRetried+=1
 set cmCurrentStatus=b%cmRetried%
 if "%cmBmcWebStatus%"=="b" set /a "cmRetried=cmMaxRetry"
-if %cmRetried% GEQ %cmMaxRetry% (set cmCurrentStatus=b) & (set cmBmcWebStatus=b) & goto writebad
+if %cmRetried% GEQ %cmMaxRetry% goto writebad
 call:write "Bad, retried = %cmRetried%." 1
 goto loop
 :writebad
+set cmLastHttpCode=
+set cmCurrentStatus=b
+set cmBmcWebStatus=b
 title %hostExec%: bad!
 call:write "Connection went to bad!"
 goto loop
