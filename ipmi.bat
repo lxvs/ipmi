@@ -206,7 +206,7 @@ if "%cmMaxRetry%" GTR "0" (
 ) else goto writebad
 :gethttpcode
 for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
-    call:write "DEBUG: HTTP code change:    %cmLastHttpCode% -> %%i" 8
+    call:write "DEBUG: HTTP code change:    %cmLastHttpCode% to %%i" 8
     call:write "DEBUG: BMC web status:      %cmBmcWebStatus%" 8
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
