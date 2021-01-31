@@ -3,15 +3,15 @@ if "%1"=="" goto usage
 if /i "%1"=="t" if "%3"=="" ping -t 100.2.76.%2 & goto:eof
 if /i "%1"=="-t" if "%3"=="" ping -t 100.2.76.%2 & goto:eof
 set /a host=%1
-if "%host%" NEQ "%1" goto usage
+if "%host%" NEQ "%1" ipmitool %* & goto:eof
 if "%2"=="" ping 100.2.76.%1 & goto:eof
 if /i "%2"=="t" if "%3"=="" ping -t 100.2.76.%1 & goto:eof
 if /i "%2"=="-t" if "%3"=="" ping -t 100.2.76.%1 & goto:eof
-if /i "%2"=="sol" goto SOL
+if /i "%2"=="sol" if "%3"=="" goto SOL
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%* & goto:eof
 :usage
 echo.
-echo. IPMI script 20201123
+echo. IPMI script 20201124
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -43,14 +43,15 @@ goto:eof
 
 :SOL
 echo.
-echo.^> Deactivating SOL...
+echo.^> Deactivating previous SOL...
 echo.
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%1 sol deactivate
-echo.
-echo.^> SOL Activate...
-echo.
 call:LFN %1 logfilename 1
 type nul> %logfilename%
+echo.
+echo.^> Log file saved to %logfilename%
+echo.^> Activate SOL...
+echo.
 explorer /select,"%logfilename%"
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%1 sol activate >> %logfilename%
 goto:eof
