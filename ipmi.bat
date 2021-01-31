@@ -170,7 +170,6 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     call:write "ping: OK." 2
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
-        title %hostExec%: good
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status is not defined." 8
         if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready." 1) else call:write "Connection is good."
         ping localhost -n 2 >NUL
@@ -178,7 +177,6 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     )
     if /i "%cmCurrentStatus%" EQU "b" (
         set cmCurrentStatus=g
-        title %hostExec%: good
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status turns good." 8
         if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready.") else call:write "Became good."
         ping localhost -n 2 >NUL
@@ -208,7 +206,7 @@ if "%cmMaxRetry%" GTR "0" (
 ) else goto writebad
 :gethttpcode
 for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
-    call:write "DEBUG: HTTP code change:    %cmLastHttpCode% -^> %%i" 8
+    call:write "DEBUG: HTTP code change:    %cmLastHttpCode% -> %%i" 8
     call:write "DEBUG: BMC web status:      %cmBmcWebStatus%" 8
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
@@ -216,7 +214,7 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
         if "%3" NEQ "" (
             call:write "%~1"
             set cmBmcWebStatus=b
-        ) else if "%cmBmcWebStatus%"=="g" (
+        ) else if /i "%cmBmcWebStatus%" NEQ "b" (
             call:write "%~1"
             set cmBmcWebStatus=b
         )
@@ -224,7 +222,7 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
         if "%3" NEQ "" (
             call:write "%~2"
             set cmBmcWebStatus=g
-        ) else if "%cmBmcWebStatus%"=="b" (
+        ) else if /i "%cmBmcWebStatus%" NEQ "g" (
             call:write "%~2"
             set cmBmcWebStatus=g
         )
@@ -240,9 +238,9 @@ if %cmRetried% GEQ %cmMaxRetry% goto writebad
 call:write "Bad, retried = %cmRetried%." 1
 goto loop
 :writebad
-set cmLastHttpCode=
 set cmCurrentStatus=b
-set cmBmcWebStatus=b
+set cmBmcWebStatus=
+set cmLastHttpCode=
 title %hostExec%: bad!
 call:write "Connection went to bad!"
 goto loop
