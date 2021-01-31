@@ -53,7 +53,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script updated on 20201230
+echo. IPMI script updated on 20210103
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -107,9 +107,9 @@ ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate >> %solLfn%
 goto:eof
 
 :err
-echo.
-echo.^> %1^(%2^): %~3
-echo.
+echo.**************
+call:write "^> %1^(%2^): %~3"
+echo.**************
 goto:eof
 
 :connectionMonitor
@@ -141,7 +141,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
             )
         ) else (
             call:write "Connection is good."
-            ping localhost -n 2 >NUL
+            ping localhost -n 3 >NUL
         )
         goto loop
     )
@@ -162,14 +162,14 @@ if /i "%TtlSeg:~,3%"=="TTL" (
             )
         ) else (
             call:write "Became good."
-            ping localhost -n 2 >NUL
+            ping localhost -n 3 >NUL
         )
         goto loop
     )
     if /i "%cmCurrentStatus:~,1%" EQU "b" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
-        ping localhost -n 2 >NUL
+        ping localhost -n 3 >NUL
         goto loop
     )
     if "%cmver%"=="1" (
@@ -186,15 +186,13 @@ if /i "%TtlSeg:~,3%"=="TTL" (
             )
         )
     )
-    ping localhost -n 2 >NUL
+    ping localhost -n 3 >NUL
     goto loop
 )
 if not defined cmCurrentStatus (
     set cmCurrentStatus=b
     set cmBmcWebStatus=b
-    title %hostExec%: bad!
-    call:write "Connection is bad!"
-    goto loop
+    goto writebad
 )
 if /i "%cmCurrentStatus%"=="b" goto loop
 if /i "%cmCurrentStatus:~,1%"=="b" goto trans
@@ -207,7 +205,8 @@ if "%cmMaxRetry%" GTR "0" (
 set /a cmRetried=%cmCurrentStatus:~-1%
 set /a cmRetried+=1
 set cmCurrentStatus=b%cmRetried%
-if "%cmRetried%" GEQ "%cmMaxRetry%" (set cmCurrentStatus=b) & (set cmBmcWebStatus=b) & goto writebad
+if "%cmBmcWebStatus%"=="b" set /a "cmRetried=cmMaxRetry"
+if %cmRetried% GEQ %cmMaxRetry% (set cmCurrentStatus=b) & (set cmBmcWebStatus=b) & goto writebad
 call:write "Bad, retried = %cmRetried%." 1
 goto loop
 :writebad
@@ -216,10 +215,8 @@ call:write "Connection went to bad!"
 goto loop
 :write
 if not exist %cmWf% md %cmWf%
-set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time%"
-if "%2" NEQ "1" (
-    echo %cmTimeStamp%: %~1
-    set cmLogMsg=%~1
-) else set "cmLogMsg=  ~%~1"
-echo %cmTimeStamp%: %cmLogMsg%>>%cmWf%\%hostExec%.log
+set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
+if "%2" NEQ "1" (set cmLogMsg=%~1) else set "cmLogMsg=  ~%~1"
+if "%2" NEQ "1" (echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log) & echo %cmTimeStamp% %cmLogMsg%
+echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.verbose.log
 goto:eof
