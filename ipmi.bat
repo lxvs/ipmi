@@ -59,7 +59,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script updated on 20210103
+echo. IPMI script updated on 20210104
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -131,70 +131,33 @@ call:write "------- Started -------"
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
 :afterfor
 if /i "%TtlSeg:~,3%"=="TTL" (
+    call:write "ping: OK." 2
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
         title %hostExec%: good
-        if "%cmver%"=="1" (
-            for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
-                if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
-                if "%%i"=="000" (
-                    call:write "BMC web is not ready!"
-                    set cmBmcWebStatus=b
-                ) else (
-                    call:write "BMC web is ready."
-                    set cmBmcWebStatus=g
-                )
-            )
-        ) else (
-            call:write "Connection is good."
-            ping localhost -n 3 >NUL
-        )
+        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready." 1) else call:write "Connection is good."
+        ping localhost -n 2 >NUL
         goto loop
     )
     if /i "%cmCurrentStatus%" EQU "b" (
         set cmCurrentStatus=g
         title %hostExec%: good
-        
-        if "%cmver%"=="1" (
-            for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
-                if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
-                if "%%i"=="000" (
-                    call:write "BMC web is not ready!"
-                    set cmBmcWebStatus=b
-                ) else (
-                    call:write "BMC web is ready."
-                    set cmBmcWebStatus=g
-                )
-            )
-        ) else (
-            call:write "Became good."
-            ping localhost -n 3 >NUL
-        )
+        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready.") else call:write "Became good."
+        ping localhost -n 2 >NUL
         goto loop
     )
     if /i "%cmCurrentStatus:~,1%" EQU "b" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
-        ping localhost -n 3 >NUL
+        if "%cmver%"=="1" call:gethttpcode "BMC web is not ready!" "BMC web is ready.
+        ping localhost -n 2 >NUL
         goto loop
     )
-    if "%cmver%"=="1" (
-        for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
-            if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
-            if "%%i"=="000" (
-                if "%cmBmcWebStatus%"=="g" (
-                    call:write "BMC web got lost!"
-                    set cmBmcWebStatus=b)
-            ) else (
-                if "%cmBmcWebStatus%"=="b" (
-                    call:write "BMC web is ready."
-                    set cmBmcWebStatus=g)
-            )
-        )
-    )
-    ping localhost -n 3 >NUL
+    if "%cmver%"=="1" call:gethttpcode "BMC web got lost!" "BMC web is ready."
+    ping localhost -n 2 >NUL
     goto loop
 )
+call:write "ping: bad!" 2
 if not defined cmCurrentStatus (
     set cmCurrentStatus=b
     set cmBmcWebStatus=b
@@ -207,6 +170,29 @@ if "%cmMaxRetry%" GTR "0" (
     call:write "Bad? retrying." 1
     goto loop
 ) else goto writebad
+:gethttpcode
+for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+    call:write "HTTP code: %%i" 2
+    if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
+    if "%%i"=="000" (
+        if "%3" NEQ "" (
+            call:write "%~1"
+            set cmBmcWebStatus=b
+        ) else if "%cmBmcWebStatus%"=="g" (
+            call:write "%~1"
+            set cmBmcWebStatus=b
+        )
+    ) else (
+        if "%3" NEQ "" (
+            call:write "%~2"
+            set cmBmcWebStatus=g
+        ) else if "%cmBmcWebStatus%"=="b" (
+            call:write "%~2"
+            set cmBmcWebStatus=g
+        )
+    )
+)
+goto:eof
 :trans
 set /a cmRetried=%cmCurrentStatus:~-1%
 set /a cmRetried+=1
@@ -220,13 +206,15 @@ title %hostExec%: bad!
 call:write "Connection went to bad!"
 goto loop
 :write
-if not exist %cmWf% md %cmWf%
-set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
 set lvl=%2
 if "lvl"=="" (set /a lvl=0) else set /a lvl=lvl
+if %lvl% GEQ %loglevel% goto:eof
+if not exist %cmWf% md %cmWf%
+set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
+set "cmLogMsg=%~1"
 if %lvl%==0 echo %cmTimeStamp% %cmLogMsg%
 if %loglevel% LEQ 0 goto:eof
-echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log
+if %lvl%==0 echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log
 if %loglevel% LEQ 1 goto:eof
 if %lvl% LSS %loglevel% echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.verbose.log
 goto:eof
