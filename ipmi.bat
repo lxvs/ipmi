@@ -1,5 +1,6 @@
 @echo off
 setlocal
+set /a cmMaxRetry=3
 set /a cmLogLvl=2
 REM cmLogLvl determines what will be writen to the log file located in ConnectionLogs folder.
 REM     0: nothing.
@@ -7,6 +8,8 @@ REM     1: only what shows in console.
 REM     2: connection retries before anounce bad, and http code changes, besides logs of lower level.
 REM     3: every ping and http code results, besides logs of lower levels.
 if "%1"=="" goto usage
+set cmLogLvlTmp=
+set cmMaxRetryTmp=
 echo %1 | findstr /i "? help usage" >NUL && goto usage
 call:hostparse %1 hostpre
 if not defined hostpre (call:err Warning 50 "Something strange happend during host parsing.") & goto usage
@@ -43,9 +46,7 @@ if /i "%2"=="cm" if "%3"=="" (set cmVer=0) & goto connectionMonitor
 if /i "%2"=="c" (
     set cmVer=1
     if "%3"=="" goto connectionMonitor
-    set /a cmLogLvlTmp=%3
-    if "%cmLogLvlTmp%"=="%3" set /a cmLogLvl=cmLogLvlTmp
-    goto connectionMonitor
+    goto preCmParse
     )
 if /i "%2"=="sol" (
     if "%3"=="" ((call:SOL %1) & goto:eof)
@@ -58,6 +59,33 @@ if /i "%2"=="sol" (
 if /i "%2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
 if /i "%2"=="br" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset & goto:eof
 goto default
+:preCmParse
+if /i "%3"=="" goto postCmParse
+if /i "%3"=="-L" (
+    if "%4"=="" goto postCmParse
+    set cmLogLvlTmp=%4
+    shift /3
+    shift /3
+    goto preCmParse
+)
+if /i "%3"=="-M" (
+    if "%4"=="" goto postCmParse
+    set cmMaxRetryTmp=%4
+    shift /3
+    shift /3
+    goto preCmParse
+)
+call:err Warning 760 "Unsupported CM parameter(s) met!"
+:postCmParse
+if "%cmLogLvlTmp%" NEQ "" (
+    set /a cmLogLvlTmpPost=cmLogLvlTmp
+    if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (set /a cmLogLvl=cmLogLvlTmpPost) else call:err Warning 800 "Parameter 'log level' was designated but did not applied."
+)
+if "%cmMaxRetryTmp%" NEQ "" (
+    set /a cmMaxRetryTmpPost=cmMaxRetryTmp
+    if "%cmMaxRetryTmpPost%"=="%cmMaxRetryTmp%" (set /a cmMaxRetry=cmMaxRetryTmpPost) else call:err Warning 840 "Parameter 'max retry' was designated but did not applied."
+)
+goto connectionMonitor
 :solargparse
 if "%solArg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
 if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
@@ -119,20 +147,24 @@ ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate >> %solLfn%
 goto:eof
 
 :err
-echo.**************
-call:write "^> %1^(%2^): %~3"
-echo.**************
+echo ^> %1^(%2^): %~3
+echo.
 goto:eof
 
 :connectionMonitor
-set /a cmMaxRetry=3
 title %hostExec%
 set "cmWf=%cd%\ConnectionLogs"
 if not exist %cmWf% md %cmWf%
 set cmCurrentStatus=
 set cmBmcWebStatus=
 set cmLastHttpCode=
-call:write "------- Started -------"
+call:write "----------------------------------------------------------------"
+call:write "Host:           %hostExec%"
+call:write "Log folder:     %cmWf%"
+call:write "Max retry:      %cmMaxRetry%"
+if "%cmVer%"=="1" ^
+call:write "Log level:      %cmLogLvl%"
+call:write "----------------------------------------------------------------"
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
 :afterfor
@@ -220,7 +252,7 @@ set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
 set "cmLogMsg=%~1"
 if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
 if %cmLogLvl% LEQ 0 goto:eof
-if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.log
+if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg% >> %cmWf%\%hostExec%.log
 if %cmLogLvl% LEQ 1 goto:eof
-if %cmMsgLvl% LSS %cmLogLvl% echo %cmTimeStamp% %cmLogMsg%>>%cmWf%\%hostExec%.verbose.log
+if %cmMsgLvl% LSS %cmLogLvl% echo %cmTimeStamp% %cmLogMsg% >> %cmWf%\%hostExec%.verbose.log
 goto:eof
