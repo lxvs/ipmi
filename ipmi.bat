@@ -154,7 +154,7 @@ goto:eof
 :connectionMonitor
 title %hostExec%
 set "cmWf=%cd%\ConnectionLogs"
-if not exist %cmWf% md %cmWf%
+if not exist "%cmWf%" md "%cmWf%"
 set cmCurrentStatus=
 set cmBmcWebStatus=
 set cmLastHttpCode=
@@ -247,12 +247,12 @@ goto loop
 set cmMsgLvl=%2
 if "cmMsgLvl"=="" (set /a cmMsgLvl=0) else set /a cmMsgLvl=cmMsgLvl
 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
-if not exist %cmWf% md %cmWf%
+if not exist "%cmWf%" md "%cmWf%"
 set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
 set "cmLogMsg=%~1"
 if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
 if %cmLogLvl% LEQ 0 goto:eof
-if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg% >> %cmWf%\%hostExec%.log
+if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg% >> "%cmWf%\%hostExec%.log"
 if %cmLogLvl% LEQ 1 goto:eof
-if %cmMsgLvl% LSS %cmLogLvl% echo %cmTimeStamp% %cmLogMsg% >> %cmWf%\%hostExec%.verbose.log
+if %cmMsgLvl% LSS %cmLogLvl% echo %cmTimeStamp% %cmLogMsg% >> "%cmWf%\%hostExec%.verbose.log"
 goto:eof
