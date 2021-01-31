@@ -55,9 +55,16 @@ if /i "%2"=="sol" (
 )
 if /i "%2"=="fan" (
     if "%3"=="" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2f & goto:eof
+    if "%3"=="0" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
     if "%3"=="auto" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 1
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2c 0xff %3
+    if %errorLevel% GTR 0 (
+        echo.
+        echo. It seems that an error occured
+        echo. But the fan mode has been set to manual
+        echo. Use "ipmi %hostExec% fan 0" to set fan mode to auto if needed
+    )
     goto:eof
 )
 if /i "%2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
@@ -116,8 +123,8 @@ echo.                                                         3: Also log every 
 echo.                                                 ^<M^> for Max retry:  ^(default: 3^)
 echo.                                                         Retrying times before anouncing a bad connection.
 echo.   ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
-echo.   ipmi ^<IP^> fan auto                        ^(Need Porting^) Set fan mode to auto
-echo.   ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(0~100^)
+echo.   ipmi ^<IP^> fan 0^|auto                      ^(Need Porting^) Set fan mode to auto
+echo.   ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(1~100^)
 echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter^(s^)
 echo.
 pause>NUL
