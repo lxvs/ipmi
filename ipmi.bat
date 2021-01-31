@@ -69,7 +69,7 @@ set "year=%date:~,4%"
 if "%date:~8,1%"=="0" (set "day=%date:~9,1%") else set "day=%date:~8,2%"
 if "%time:~0,1%"==" " (set "hm=0%time:~1,1%%time:~3,2%") else set "hm=%time:~0,2%%time:~3,2%"
 if "%3"=="1" if not exist "SOLlogs\%year%%month%%day%" md "SOLlogs\%year%%month%%day%"
-set "%2=%cd%\SOLlogs\%year%%month%%day%\76.%1.%hm%.log"
+set "%2=%cd%\SOLlogs\%year%%month%%day%\%1.%hm%.log"
 goto:eof
 
 :SOL
@@ -78,7 +78,7 @@ echo.^> Deactivating previous SOL...
 echo.
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%1 sol deactivate
 if "%2" NEQ "" set logfilename=%cd%\%2
-if not defined logfilename (call:LFN %1 logfilename 1)
+if not defined logfilename (call:LFN %hostpre%%1 logfilename 1)
 type nul> %logfilename% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & goto:eof)
 echo.
 echo.^> Log file saved to %logfilename%
