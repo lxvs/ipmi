@@ -1,6 +1,7 @@
 @echo off
 setlocal
 if "%1"=="" goto usage
+echo %1 | findstr /i "? help usage" >NUL && goto usage
 call:hostparse %1 hostpre
 if not defined hostpre (call:err Warning 50 "Something strange happend during host parsing.") & goto usage
 if "%hostpre%" EQU "crierr" goto:eof
@@ -51,7 +52,7 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
 echo.
-echo. IPMI script 20201225
+echo. IPMI script updated on 20201228
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
