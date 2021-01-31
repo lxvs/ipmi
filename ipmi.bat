@@ -119,6 +119,7 @@ set "cmWf=%cd%\ConnectionLogs"
 if not exist %cmWf% md %cmWf%
 set cmCurrentStatus=
 set cmBmcWebStatus=
+set cmLastHttpCode=
 call:write "------- Started -------"
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
@@ -129,6 +130,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
         title %hostExec%: good
         if "%cmver%"=="1" (
             for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+                if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
                 if "%%i"=="000" (
                     call:write "Connection is good, but BMC web is not ready!"
                     set cmBmcWebStatus=b
@@ -149,11 +151,12 @@ if /i "%TtlSeg:~,3%"=="TTL" (
         
         if "%cmver%"=="1" (
             for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+                if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
                 if "%%i"=="000" (
                     call:write "Became good, but BMC web is not ready!"
                     set cmBmcWebStatus=b
                 ) else (
-                    call:write "Good, BMC web is ready."
+                    call:write "BMC web is ready."
                     set cmBmcWebStatus=g
                 )
             )
@@ -171,6 +174,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     )
     if "%cmver%"=="1" (
         for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+            if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
             if "%%i"=="000" (
                 if "%cmBmcWebStatus%"=="g" (
                     call:write "Connection is good, but BMC web became bad!"
@@ -181,9 +185,8 @@ if /i "%TtlSeg:~,3%"=="TTL" (
                     set cmBmcWebStatus=g)
             )
         )
-    ) else (
-        ping localhost -n 2 >NUL
     )
+    ping localhost -n 2 >NUL
     goto loop
 )
 if not defined cmCurrentStatus (
