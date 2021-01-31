@@ -1,17 +1,29 @@
 @echo off
+setlocal
 if "%1"=="" goto usage
 if /i "%1"=="t" if "%3"=="" ping -t 100.2.76.%2 & goto:eof
 if /i "%1"=="-t" if "%3"=="" ping -t 100.2.76.%2 & goto:eof
-set /a host=%1
+set /a host=%1 2>NUL || goto hostparse
 if "%host%" NEQ "%1" ipmitool %* & goto:eof
 if "%2"=="" ping 100.2.76.%1 & goto:eof
 if /i "%2"=="t" if "%3"=="" ping -t 100.2.76.%1 & goto:eof
 if /i "%2"=="-t" if "%3"=="" ping -t 100.2.76.%1 & goto:eof
 if /i "%2"=="sol" if "%3"=="" goto SOL
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%* & goto:eof
+:hostparse
+set /a secnum=0
+for /f "delims=. tokens=1-4,*" %%a in ("%1") do (
+    if "%%a" NEQ "" (set seca=%%a) else goto afterhostparse
+    if "%%b" NEQ "" (set secb=%%b) else goto afterhostparse
+    if "%%c" NEQ "" (set secc=%%c) else goto afterhostparse
+    if "%%d" NEQ "" (set secd=%%d) else goto afterhostparse
+    if "%%e" NEQ "" (set sece=%%e) else goto afterhostparse
+)
+:afterhostparse
+if defined sece ((call:err Fatal 230 "IP input has more than 4 sections.") & goto:eof)
 :usage
 echo.
-echo. IPMI script 20201124
+echo. IPMI script 20201126
 echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
 echo. 
 echo. Usage:
@@ -48,7 +60,7 @@ echo.^> Deactivating previous SOL...
 echo.
 ipmitool -I lanplus -U admin -P admin -H 100.2.76.%1 sol deactivate
 call:LFN %1 logfilename 1
-type nul> %logfilename% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & exit /b)
+type nul> %logfilename% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & goto:eof)
 echo.
 echo.^> Log file saved to %logfilename%
 echo.^> Activate SOL...
