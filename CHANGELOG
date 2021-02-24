@@ -4,6 +4,13 @@ UNRELEASED
 	* BUGFIX: log filenames are malformatted in different locales.
 	* BUGFIX: log timestamps are malformatted in different locales.
 
+4.20.0 - 2021-02-24  Johnny Appleseed
+
+	* IMPROVEMENT: replace all 'echo.' with 'echo;', because the former
+	               has a better performance.
+	* IMPROVEMENT: replace update date with version number.
+	* IMPROVEMENT: replace email with github link.
+
 4.19.0 - 2021-01-23  Johnny Appleseed
 
 	* BUGFIX: minor one on fan speed controling.

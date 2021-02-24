@@ -4,6 +4,7 @@ REM Default values are set here
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
 REM Default Values end
+set "_version=4.20.0"
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
@@ -93,40 +94,40 @@ if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
 :default
 ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
 :usage
-echo.
-echo. IPMI script v.2021.1.23
-echo. Johnny Appleseed ^<lllxvs+github.ipmi@gmail.com^>
-echo. 
-echo. Usage:
-echo.
-echo.   ipmi ^<IP^> arg1 [arg2 [...]]               Send IPMITool commands
+echo;
+echo; IPMI script %_version%
+echo; https://github.com/lxvs/ipmi
+echo;
+echo; Usage:
+echo;
+echo;   ipmi ^<IP^> arg1 [arg2 [...]]               Send IPMITool commands
 call:LFN *IP* fn
-echo.   ipmi ^<IP^> SOL                             Collect SOL log to %fn%
-echo.   ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]       Collect SOL log to %cd%\^<FileName^>
-echo.   ipmi ^<IP^> [t]                             Ping
-echo.   ipmi ^<IP^> BIOS                            Force to enter BIOS setup on next boot
-echo.   ipmi ^<IP^> BR                              Force to enter BIOS setup on next boot and reset immediately
-echo.   ipmi ^<IP^> cm                              Connection monitor legacy
-echo.   ipmi ^<IP^> c [-L ^<L^>] [-M ^<M^>]             Connection monitor upgraded: also monitors if bmc web is ready.
-echo.                                                 ^<L^> for Log level:
-echo.                                                         0: Do not write any log.
-echo.                                                         1: Log only what shows in console.
-echo.                                                         2: ^(default^) Also log retries before anouncing a bad
-echo.                                                            connection, and http code changes.
-echo.                                                         3: Also log every ping and http code result.
-echo.                                                 ^<M^> for Max retry:  ^(default: 3^)
-echo.                                                         Retrying times before anouncing a bad connection.
-echo.   ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
-echo.   ipmi ^<IP^> fan 0^|auto                      ^(Need Porting^) Set fan mode to auto
-echo.   ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(1~100^)
-echo.   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter^(s^)
-echo.
+echo;   ipmi ^<IP^> SOL                             Collect SOL log to %fn%
+echo;   ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]       Collect SOL log to %cd%\^<FileName^>
+echo;   ipmi ^<IP^> [t]                             Ping
+echo;   ipmi ^<IP^> BIOS                            Force to enter BIOS setup on next boot
+echo;   ipmi ^<IP^> BR                              Force to enter BIOS setup on next boot and reset immediately
+echo;   ipmi ^<IP^> cm                              Connection monitor legacy
+echo;   ipmi ^<IP^> c [-L ^<L^>] [-M ^<M^>]             Connection monitor upgraded: also monitors if bmc web is ready.
+echo;                                                 ^<L^> for Log level:
+echo;                                                         0: Do not write any log.
+echo;                                                         1: Log only what shows in console.
+echo;                                                         2: ^(default^) Also log retries before anouncing a bad
+echo;                                                            connection, and http code changes.
+echo;                                                         3: Also log every ping and http code result.
+echo;                                                 ^<M^> for Max retry:  ^(default: 3^)
+echo;                                                         Retrying times before anouncing a bad connection.
+echo;   ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
+echo;   ipmi ^<IP^> fan 0^|auto                      ^(Need Porting^) Set fan mode to auto
+echo;   ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(1~100^)
+echo;   ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter^(s^)
+echo;
 pause>NUL
-echo. Examples:
-echo.
-echo.   ipmi 255 arg1 arg2 arg3
-echo.     stands for:
-echo.   ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
+echo; Examples:
+echo;
+echo;   ipmi 255 arg1 arg2 arg3
+echo;     stands for:
+echo;   ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
 goto:eof
 
 :LFN
@@ -140,24 +141,24 @@ set "%2=%lfnWf%\%1.%lfnHm%.log"
 goto:eof
 
 :SOL
-echo.
-echo.^> Deactivating previous SOL...
-echo.
+echo;
+echo;^> Deactivating previous SOL...
+echo;
 ipmitool -I lanplus -U admin -P admin -H %hostExec% sol deactivate
 if "%2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
 type nul> %solLfn% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & goto:eof)
-echo.
-echo.^> Log file saved to %solLfn%
-echo.^> Activate SOL...
-echo.
+echo;
+echo;^> Log file saved to %solLfn%
+echo;^> Activate SOL...
+echo;
 explorer /select,"%solLfn%"
 (ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate)> %solLfn%
 goto:eof
 
 :err
 echo ^> %1^(%2^): %~3
-echo.
+echo;
 goto:eof
 
 :connectionMonitor
