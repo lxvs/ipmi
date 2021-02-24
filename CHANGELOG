@@ -1,0 +1,124 @@
+UNRELEASED
+
+	* BUGFIX: parse error when input full parts of IP.
+	* BUGFIX: log filenames are malformatted in different locales.
+	* BUGFIX: log timestamps are malformatted in different locales.
+
+4.19.0 - 2021-01-23  Johnny Appleseed
+
+	* BUGFIX: minor one on fan speed controling.
+
+4.18.0 - 2021-01-21  Johnny Appleseed
+
+	* NEW: fan speed controlling commands, porting needed.
+	* IMPROVEMENT: fan speed controlling.
+	* IMPROVEMENT: on codes.
+
+4.16.0 - 2021-01-13  Johnny Appleseed
+
+	* BUGFIX: fixed the trailing-white-space-in-log issue entirely.
+
+4.15.0 - 2021-01-08  Johnny Appleseed
+
+	* IMPROVEMENT: choices of words.
+
+4.14.1 - 2021-01-05  Johnny Appleseed
+
+	* BUGFIX: minor ones in CMEX.
+	* IMPROVEMENT: the log header of CMEX.
+	* IMPROVEMENT: add some debug info for CMEX.
+	* IMPROVEMENT: other minor ones in CMEX.
+	* IMPROVEMENT: update the help info.
+
+4.9.0 - 2021-01-04  Johnny Appleseed
+
+	* NEW: argument parsing for 'loglevel' and 'maxretry' of CMEX.
+	* BUGFIX: [CMEX] the log lines that end with '1' or '2' cannot be
+	          logged properly.
+	* IMPROVEMENT: rename several variables in CMEX.
+	* IMPROVEMENT: code of CMEX.
+
+4.5.0 - 2021-01-03  Johnny Appleseed
+
+	* NEW: log level, controls how verbose the logs are.
+	* IMPROVEMENT: [CMEX] stalls 2s instead of 1s after each successful
+	               pinging.
+	* IMPROVEMENT: [CMEX] the information beyong what shows in console
+	               will be logged into another logfile.
+	* IMPROVEMENT: [CMEX] suppress the millisecond of timestamps.
+
+4.3.0 - 2020-12-30  Johnny Appleseed
+
+	* BUGFIX: a white space follows every line of logs.
+	* IMPROVEMENT: Now CMEX will log the HTTP code updates.
+	* IMPROVEMENT: BMC web accessibility prompts of CMEX.
+
+4.0.0 - 2020-12-30  Johnny Appleseed
+
+	* NEW: Connection Monitor Ex, monitors the BMC web accessibility.
+
+3.4.0 - 2020-12-28  Johnny Appleseed
+
+	* NEW: some help arguments.
+
+3.3.0 - 2020-12-25  Johnny Appleseed
+
+	* NEW: a shortcut to force SUT boot to bios.
+	* IMPROVEMENT: change the default max retry times from 2 to 3.
+
+3.2.0 - 2020-12-22  Johnny Appleseed
+
+	* IMPROVEMENT: [CM] stalls for 1s only when last pinging is
+	               successful, instead of every time it pings, to
+	               reduce responding time.
+
+3.1.0 - 2020-12-15  Johnny Appleseed
+
+	* BUGFIX: host parsing funtion.
+	* IMPROVEMENT: rename several variable names.
+
+3.0.0 - 2020-12-14  Johnny Appleseed
+
+	* NEW: Connection Monitor!
+	* IMPROVEMENT: host parsing function and help info.
+
+2.2.0 - 2020-12-02  Johnny Appleseed
+
+	* IMPROVEMENT: let a variable controls SOL log folder.
+	* IMPROVEMENT: date format of filenames of SOL logs.
+
+2.1.0 - 2020-11-27  Johnny Appleseed
+
+	* NEW: custom SOL log filename support.
+	* BUGFIX: the filename of auto generated SOL logs are confusing.
+	* IMPROVEMENT: IP address parsing function is stronger.
+	* IMPROVEMENT: help info and error prompt.
+
+1.9.0 - 2020-11-26  Johnny Appleseed
+
+	* NEW: IP address parsing function.
+
+1.4.0 - 2020-11-24  Johnny Appleseed
+
+	* NEW: If 1st arg is not a number (last part of IP), it will show
+	       the primitive ipmitool help info, instead of script usage.
+	* NEW: a simple error prompt function.
+	* IMPROVEMENT: the SOL function.
+	* IMPROVEMENT: help information.
+
+1.2.0 - 2020-11-23  Johnny Appleseed
+
+	* IMPROVEMENT: change the position of SOL logs.
+	* IMPROVEMENT: the SOL function.
+
+1.1.0 - 2020-11-20  Johnny Appleseed
+
+	* IMPROVEMENT: pick the SOL function out of IF block to avoid 
+	               enabing delayed expansion.
+	* IMPROVEMENT: make log filename calculation independent.
+	* IMPROVEMENT: ping function.
+
+1.0.0 - 2020-11-16  Johnny Appleseed
+
+	* NEW: collect SOL logs in a more convenient way.
+	* NEW: ping -t support.
