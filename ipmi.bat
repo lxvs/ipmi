@@ -4,13 +4,12 @@ REM Default values are set here
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
 REM Default Values end
-set "_version=4.20.0"
+set "_version=4.20.1"
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
 echo %1 | findstr /i "? help usage" >NUL && goto usage
 call:hostparse %1 hostpre
-if not defined hostpre (call:err Warning 50 "Something strange happend during host parsing.") & goto usage
 if "%hostpre%" EQU "crierr" goto:eof
 if "%hostpre%" EQU "notint" ipmitool %* & goto:eof
 goto exec
