@@ -1,7 +1,10 @@
-2021-02-25  Johnny Appleseed
+4.22.0 - 2021-02-25  Johnny Appleseed
 
+	* NEW: current/latest version check by 'ipmi version'.
 	* BUGFIX: connection monitor title is always bad.
 	* IMPROVEMENT: add title on command execution and SOL.
+	* IMPROVEMENT: add help info for version and usage.
+	* IMPROVEMENT: the example in help info.
 
 4.21.0 - 2021-02-25  Johnny Appleseed
 

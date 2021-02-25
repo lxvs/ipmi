@@ -5,12 +5,15 @@ set "defaultHostPrefix=100.2.76"
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
 REM --- Default Values end
-set "_version=4.21.0"
+set "_version=4.22.0"
 title IPMI %_version%
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
 echo %1 | findstr /i "? help usage" >NUL && goto usage
+if /i "%1"=="-v" goto version
+if /i "%1"=="/v" goto version
+echo %1 | findstr /i "version" >NUL && goto version
 call:hostparse %1 hostpre
 if "%hostpre%" EQU "crierr" goto:eof
 if "%hostpre%" EQU "notint" ipmitool %* & goto:eof
@@ -109,6 +112,8 @@ echo;
 echo  Usage:
 echo;
 echo    ipmi ^<IP^> arg1 [arg2 [...]]               Send IPMITool commands
+echo    ipmi version ^| -v ^| /v                    Get current and latest version
+echo    ipmi [? ^| help ^| usage]                   Get help on this script
 call:LFN *IP* fn
 echo    ipmi ^<IP^> SOL                             Collect SOL log to %fn%
 echo    ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]       Collect SOL log to %cd%\^<FileName^>
@@ -128,13 +133,15 @@ echo                                                          Retrying times bef
 echo    ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
 echo    ipmi ^<IP^> fan 0^|auto                      ^(Need Porting^) Set fan mode to auto
 echo    ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(1~100^)
+pause>NUL
 echo    ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter^(s^)
 echo;
-pause>NUL
 echo  Examples:
 echo;
-echo    ipmi 255 arg1 arg2 arg3
-echo      stands for:
+echo    If defaultHostPrefix was set to '100.2.76.', then
+echo;
+echo    'ipmi 255 arg1 arg2 arg3' stands for:
+echo;
 echo    ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
 goto:eof
 
@@ -292,4 +299,11 @@ for /f "tokens=1-6 usebackq delims=_" %%a in (`powershell -command "&{Get-Date -
     if "%5" NEQ "" set %5=%%e
     if "%6" NEQ "" set %6=%%f
 )
+goto:eof
+
+:version
+echo;
+echo version: %_version%
+set /p=latest:  <NUL
+curl https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION
 goto:eof
