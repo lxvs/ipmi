@@ -8,6 +8,7 @@ UNRELEASED
 	* BUGFIX: a better one for parse error when input full parts of IP.
 	* IMPROVEMENT: default value area is more pretty.
 	* IMPROVEMENT: multi-arguments support of error prompt.
+	* IMPROVEMENT: replace all 'echo;...' with 'echo ...'.
 
 4.20.1 - 2021-02-24  Johnny Appleseed
 
