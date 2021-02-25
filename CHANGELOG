@@ -1,3 +1,8 @@
+2021-02-25  Johnny Appleseed
+
+	* BUGFIX: connection monitor title is always bad.
+	* IMPROVEMENT: add title on command execution and SOL.
+
 4.21.0 - 2021-02-25  Johnny Appleseed
 
 	* NEW: GetTime function, returns a locale-independent date.

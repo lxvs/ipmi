@@ -6,6 +6,7 @@ set /a cmMaxRetry=3
 set /a cmLogLvl=2
 REM --- Default Values end
 set "_version=4.21.0"
+title IPMI %_version%
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
@@ -145,6 +146,7 @@ set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
 goto:eof
 
 :SOL
+title %hostexec% SOL
 echo;
 echo ^> Deactivating previous SOL...
 echo;
@@ -217,7 +219,6 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     ping localhost -n 2 >NUL
     goto loop
 )
-title %hostExec%: bad!
 call:write "ping: bad!" 2
 if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
