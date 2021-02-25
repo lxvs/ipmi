@@ -1,9 +1,10 @@
 @echo off
 setlocal
-REM Default values are set here
+REM --- Default values are set here
+set "defaultHostPrefix=100.2.76"
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
-REM Default Values end
+REM --- Default Values end
 set "_version=4.20.1"
 if "%1"=="" goto usage
 set cmLogLvlTmp=
@@ -16,10 +17,14 @@ goto exec
 :hostparse
 set /a host=%1 2>NUL || goto hostparsestart
 if "%host%" NEQ "%1" (set "%2=notint") & goto:eof
-set "%2=100.2.76."
-goto:eof
+REM integer without dot.
 :hostparsestart
-set /a secnum=0
+for /f "delims=. tokens=1-3" %%a in ("%defaultHostPrefix%") do (
+    if %%a. NEQ . (set prea=%%a) else goto hostparsemid
+    if %%b. NEQ . (set preb=%%b) else goto hostparsemid
+    if %%c. NEQ . (set prec=%%c) else goto hostparsemid
+)
+:hostparsemid
 for /f "delims=. tokens=1-4,*" %%a in ("%1") do (
     if "%%a" NEQ "" (set seca=%%a) else goto afterhostparse
     if "%%b" NEQ "" (set secb=%%b) else goto afterhostparse
@@ -28,11 +33,14 @@ for /f "delims=. tokens=1-4,*" %%a in ("%1") do (
     if "%%e" NEQ "" (set sece=%%e) else goto afterhostparse
 )
 :afterhostparse
-if defined sece ((call:err Fatal 230 "IP input has more than 4 sections.") & (set "%2=crierr") & goto:eof)
+if defined sece ((call:err Error 230 "IP input has more than 4 sections.") & (set "%2=crierr") & goto:eof)
 if defined secd (set %2=) & goto:eof
-if defined secc (set %2=100.) & goto:eof
-if defined secb (set %2=100.2.) & goto:eof
-call:err Warning 240 "Script went to an unexpected place!"
+if defined secc if defined prea (set %2=%prea%.) & goto:eof
+if defined secb if defined preb (set %2=%prea%.%preb%.) & goto:eof
+if defined seca if defined prec (set %2=%prea%.%preb%.%prec%.) & goto:eof
+call:err Error 240 "Parsed IP has less than 4 sections." ^
+         "Check either input or variable 'defaultHostPrefix'."
+set "%2=crierr"
 goto:eof
 :exec
 set hostExec=%hostpre%%1
@@ -146,7 +154,7 @@ echo;
 ipmitool -I lanplus -U admin -P admin -H %hostExec% sol deactivate
 if "%2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
-type nul> %solLfn% || ((call:err Fatal 510 "Cannot create log file, please consider to change a directory or run as administrator.") & goto:eof)
+type nul> %solLfn% || ((call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator.") & goto:eof)
 echo;
 echo;^> Log file saved to %solLfn%
 echo;^> Activate SOL...
@@ -156,7 +164,11 @@ explorer /select,"%solLfn%"
 goto:eof
 
 :err
+echo;
 echo ^> %1^(%2^): %~3
+:errshift
+shift /3
+if %3. NEQ . (echo -^> %~3) & goto errshift
 echo;
 goto:eof
 

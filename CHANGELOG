@@ -3,6 +3,12 @@ UNRELEASED
 	* BUGFIX: log filenames are malformatted in different locales.
 	* BUGFIX: log timestamps are malformatted in different locales.
 
+2021-02-25  Johnny Appleseed
+
+	* BUGFIX: a better one for parse error when input full parts of IP.
+	* IMPROVEMENT: default value area is more pretty.
+	* IMPROVEMENT: multi-arguments support of error prompt.
+
 4.20.1 - 2021-02-24  Johnny Appleseed
 
 	* BUGFIX: parse error when input full parts of IP.
