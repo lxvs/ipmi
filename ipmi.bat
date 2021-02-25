@@ -5,7 +5,7 @@ set "defaultHostPrefix=100.2.76"
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
 REM --- Default Values end
-set "_version=4.20.1"
+set "_version=4.21.0"
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
@@ -138,13 +138,10 @@ echo    ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
 goto:eof
 
 :LFN
-set "lfnMonth=%date:~5,2%"
-set "lfnYear=%date:~,4%"
-set "lfnDay=%date:~8,2%"
-set "lfnWf=%cd%\SolLogs\%lfnYear%%lfnMonth%%lfnDay%"
-if "%time:~0,1%"==" " (set "lfnHm=0%time:~1,1%%time:~3,2%") else set "lfnHm=%time:~0,2%%time:~3,2%"
+call:gettime lfnYear lfnMon lfnDay lfnHour lfnMin
+set "lfnWf=%cd%\SolLogs\%lfnYear%-%lfnMon%-%lfnDay%"
 if "%3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
-set "%2=%lfnWf%\%1.%lfnHm%.log"
+set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
 goto:eof
 
 :SOL
@@ -273,7 +270,8 @@ goto loop
 set cmMsgLvl=%2
 if "cmMsgLvl"=="" (set /a cmMsgLvl=0) else set /a cmMsgLvl=cmMsgLvl
 if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
-set "cmTimeStamp=%date:~5,2%/%date:~8,2%/%date:~,4% %time:~,8%"
+call:gettime cmyear cmMon cmDay cmHour cmMin cmSec
+set "cmTimeStamp=%cmyear%-%cmmon%-%cmday% %cmhour%:%cmmin%:%cmsec%"
 set "cmLogMsg=%~1"
 if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
@@ -282,4 +280,15 @@ if %cmLogLvl% LEQ 0 goto:eof
 if %cmMsgLvl%==0 (echo %cmTimeStamp% %cmLogMsg%)>> "%cmWf%\%hostExec%.log"
 if %cmLogLvl% LEQ 1 goto:eof
 if %cmMsgLvl% LSS %cmLogLvl% (echo %cmTimeStamp% %cmLogMsg%)>> "%cmWf%\%hostExec%.verbose.log"
+goto:eof
+
+:gettime
+for /f "tokens=1-6 usebackq delims=_" %%a in (`powershell -command "&{Get-Date -format 'yyyy_MM_dd_HH_mm_ss'}"`) do (
+    if "%1" NEQ "" set %1=%%a
+    if "%2" NEQ "" set %2=%%b
+    if "%3" NEQ "" set %3=%%c
+    if "%4" NEQ "" set %4=%%d
+    if "%5" NEQ "" set %5=%%e
+    if "%6" NEQ "" set %6=%%f
+)
 goto:eof
