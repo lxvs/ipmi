@@ -5,7 +5,7 @@ set "defaultHostPrefix=100.2.76"
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
 REM --- Default Values end
-set "_version=4.22.0"
+set "_version=4.22.1"
 title IPMI %_version%
 if "%1"=="" goto usage
 set cmLogLvlTmp=
