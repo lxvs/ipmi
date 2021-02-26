@@ -1,3 +1,8 @@
+2021-02-26  Johnny Appleseed
+
+	* BUGFIX: set *.bat eol to crlf in gitattributes to solve the issue
+	          that system cannot find label 'precmparse'.
+
 4.22.0 - 2021-02-25  Johnny Appleseed
 
 	* NEW: current/latest version check by 'ipmi version'.
