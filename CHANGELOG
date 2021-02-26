@@ -1,9 +1,13 @@
-4.22.1 - 2021-02-26  Johnny Appleseed
+2021-02-26  lxvs
+
+	* CHANGE SIGNING NAME FROM JOHNNY APPLESEED TO LXVS.
+
+4.22.1 - 2021-02-26  lxvs
 
 	* BUGFIX: set *.bat eol to crlf in gitattributes to solve the issue
 	          that system cannot find label 'precmparse'.
 
-4.22.0 - 2021-02-25  Johnny Appleseed
+4.22.0 - 2021-02-25  lxvs
 
 	* NEW: current/latest version check by 'ipmi version'.
 	* BUGFIX: connection monitor title is always bad.
@@ -11,7 +15,7 @@
 	* IMPROVEMENT: add help info for version and usage.
 	* IMPROVEMENT: the example in help info.
 
-4.21.0 - 2021-02-25  Johnny Appleseed
+4.21.0 - 2021-02-25  lxvs
 
 	* NEW: GetTime function, returns a locale-independent date.
 	* BUGFIX: log filenames are malformatted in different locales.
@@ -21,37 +25,37 @@
 	* IMPROVEMENT: multi-arguments support of error prompt.
 	* IMPROVEMENT: replace all 'echo;...' with 'echo ...'.
 
-4.20.1 - 2021-02-24  Johnny Appleseed
+4.20.1 - 2021-02-24  lxvs
 
 	* BUGFIX: parse error when input full parts of IP.
 	* GITIGNORE: add.
 
-4.20.0 - 2021-02-24  Johnny Appleseed
+4.20.0 - 2021-02-24  lxvs
 
 	* IMPROVEMENT: replace all 'echo.' with 'echo;', because the former
 	               has a better performance.
 	* IMPROVEMENT: replace update date with version number.
 	* IMPROVEMENT: replace email with github link.
 
-4.19.0 - 2021-01-23  Johnny Appleseed
+4.19.0 - 2021-01-23  lxvs
 
 	* BUGFIX: minor one on fan speed controling.
 
-4.18.0 - 2021-01-21  Johnny Appleseed
+4.18.0 - 2021-01-21  lxvs
 
 	* NEW: fan speed controlling commands, porting needed.
 	* IMPROVEMENT: fan speed controlling.
 	* IMPROVEMENT: on codes.
 
-4.16.0 - 2021-01-13  Johnny Appleseed
+4.16.0 - 2021-01-13  lxvs
 
 	* BUGFIX: fixed the trailing-white-space-in-log issue entirely.
 
-4.15.0 - 2021-01-08  Johnny Appleseed
+4.15.0 - 2021-01-08  lxvs
 
 	* IMPROVEMENT: choices of words.
 
-4.14.1 - 2021-01-05  Johnny Appleseed
+4.14.1 - 2021-01-05  lxvs
 
 	* BUGFIX: minor ones in CMEX.
 	* IMPROVEMENT: the log header of CMEX.
@@ -59,7 +63,7 @@
 	* IMPROVEMENT: other minor ones in CMEX.
 	* IMPROVEMENT: update the help info.
 
-4.9.0 - 2021-01-04  Johnny Appleseed
+4.9.0 - 2021-01-04  lxvs
 
 	* NEW: argument parsing for 'loglevel' and 'maxretry' of CMEX.
 	* BUGFIX: [CMEX] the log lines that end with '1' or '2' cannot be
@@ -67,7 +71,7 @@
 	* IMPROVEMENT: rename several variables in CMEX.
 	* IMPROVEMENT: code of CMEX.
 
-4.5.0 - 2021-01-03  Johnny Appleseed
+4.5.0 - 2021-01-03  lxvs
 
 	* NEW: log level, controls how verbose the logs are.
 	* IMPROVEMENT: [CMEX] stalls 2s instead of 1s after each successful
@@ -76,58 +80,58 @@
 	               will be logged into another logfile.
 	* IMPROVEMENT: [CMEX] suppress the millisecond of timestamps.
 
-4.3.0 - 2020-12-30  Johnny Appleseed
+4.3.0 - 2020-12-30  lxvs
 
 	* BUGFIX: a white space follows every line of logs.
 	* IMPROVEMENT: Now CMEX will log the HTTP code updates.
 	* IMPROVEMENT: BMC web accessibility prompts of CMEX.
 
-4.0.0 - 2020-12-30  Johnny Appleseed
+4.0.0 - 2020-12-30  lxvs
 
 	* NEW: Connection Monitor Ex, monitors the BMC web accessibility.
 
-3.4.0 - 2020-12-28  Johnny Appleseed
+3.4.0 - 2020-12-28  lxvs
 
 	* NEW: some help arguments.
 
-3.3.0 - 2020-12-25  Johnny Appleseed
+3.3.0 - 2020-12-25  lxvs
 
 	* NEW: a shortcut to force SUT boot to bios.
 	* IMPROVEMENT: change the default max retry times from 2 to 3.
 
-3.2.0 - 2020-12-22  Johnny Appleseed
+3.2.0 - 2020-12-22  lxvs
 
 	* IMPROVEMENT: [CM] stalls for 1s only when last pinging is
 	               successful, instead of every time it pings, to
 	               reduce responding time.
 
-3.1.0 - 2020-12-15  Johnny Appleseed
+3.1.0 - 2020-12-15  lxvs
 
 	* BUGFIX: host parsing funtion.
 	* IMPROVEMENT: rename several variable names.
 
-3.0.0 - 2020-12-14  Johnny Appleseed
+3.0.0 - 2020-12-14  lxvs
 
 	* NEW: Connection Monitor!
 	* IMPROVEMENT: host parsing function and help info.
 
-2.2.0 - 2020-12-02  Johnny Appleseed
+2.2.0 - 2020-12-02  lxvs
 
 	* IMPROVEMENT: let a variable controls SOL log folder.
 	* IMPROVEMENT: date format of filenames of SOL logs.
 
-2.1.0 - 2020-11-27  Johnny Appleseed
+2.1.0 - 2020-11-27  lxvs
 
 	* NEW: custom SOL log filename support.
 	* BUGFIX: the filename of auto generated SOL logs are confusing.
 	* IMPROVEMENT: IP address parsing function is stronger.
 	* IMPROVEMENT: help info and error prompt.
 
-1.9.0 - 2020-11-26  Johnny Appleseed
+1.9.0 - 2020-11-26  lxvs
 
 	* NEW: IP address parsing function.
 
-1.4.0 - 2020-11-24  Johnny Appleseed
+1.4.0 - 2020-11-24  lxvs
 
 	* NEW: If 1st arg is not a number (last part of IP), it will show
 	       the primitive ipmitool help info, instead of script usage.
@@ -135,19 +139,19 @@
 	* IMPROVEMENT: the SOL function.
 	* IMPROVEMENT: help information.
 
-1.2.0 - 2020-11-23  Johnny Appleseed
+1.2.0 - 2020-11-23  lxvs
 
 	* IMPROVEMENT: change the position of SOL logs.
 	* IMPROVEMENT: the SOL function.
 
-1.1.0 - 2020-11-20  Johnny Appleseed
+1.1.0 - 2020-11-20  lxvs
 
 	* IMPROVEMENT: pick the SOL function out of IF block to avoid 
 	               enabing delayed expansion.
 	* IMPROVEMENT: make log filename calculation independent.
 	* IMPROVEMENT: ping function.
 
-1.0.0 - 2020-11-16  Johnny Appleseed
+1.0.0 - 2020-11-16  lxvs
 
 	* NEW: collect SOL logs in a more convenient way.
 	* NEW: ping -t support.
