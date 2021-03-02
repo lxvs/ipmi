@@ -4,9 +4,17 @@ REM --- Default values are set here
 set "defaultHostPrefix=100.2.76"
 set /a cmMaxRetry=3
 set /a cmLogLvl=2
+set /a cmColorEnabled=1
 REM --- Default Values end
 set "_version=4.22.1"
 title IPMI %_version%
+if "%cmColorEnabled%"=="1" (
+    set "clrSuf=[0m"
+    set "errPre=[101;93m"
+) else (
+    set clrSuf=
+    set errPre=
+)
 if "%1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
@@ -156,7 +164,6 @@ goto:eof
 title %hostexec% SOL
 echo;
 echo ^> Deactivating previous SOL...
-echo;
 ipmitool -I lanplus -U admin -P admin -H %hostExec% sol deactivate
 if "%2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
@@ -164,18 +171,15 @@ type nul> %solLfn% || ((call:err Fatal 510 "Cannot create log file" "please cons
 echo;
 echo ^> Log file saved to %solLfn%
 echo ^> Activate SOL...
-echo;
 explorer /select,"%solLfn%"
 (ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate)> %solLfn%
 goto:eof
 
 :err
-echo;
-echo ^> %1^(%2^): %~3
+echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
 :errshift
 shift /3
-if %3. NEQ . (echo -^> %~3) & goto errshift
-echo;
+if "%~3" NEQ "" (echo %errPre%-^> %~3%clrSuf%) & goto errshift
 goto:eof
 
 :connectionMonitor
@@ -202,14 +206,14 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status is not defined." 8
-        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready." 1) else call:write "Connection is good."
+        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready." 1) else call:write "Connection is good." g
         ping localhost -n 2 >NUL
         goto loop
     )
     if /i "%cmCurrentStatus%" EQU "b" (
         set cmCurrentStatus=g
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status turns good." 8
-        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready.") else call:write "Became good."
+        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready.") else call:write "Became good." g
         ping localhost -n 2 >NUL
         goto loop
     )
@@ -243,18 +247,18 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
     if "%%i"=="000" (
         if "%3" NEQ "" (
-            call:write "%~1"
+            call:write "%~1" r
             set cmBmcWebStatus=b
         ) else if /i "%cmBmcWebStatus%" NEQ "b" (
-            call:write "%~1"
+            call:write "%~1" r
             set cmBmcWebStatus=b
         )
     ) else (
         if "%3" NEQ "" (
-            call:write "%~2"
+            call:write "%~2" g
             set cmBmcWebStatus=g
         ) else if /i "%cmBmcWebStatus%" NEQ "g" (
-            call:write "%~2"
+            call:write "%~2" g
             set cmBmcWebStatus=g
         )
     )
@@ -272,16 +276,31 @@ goto loop
 set cmCurrentStatus=b
 set cmBmcWebStatus=
 set cmLastHttpCode=
-call:write "Connection went bad!"
+call:write "Connection went bad!" r
 goto loop
 :write
-set cmMsgLvl=%2
-if "cmMsgLvl"=="" (set /a cmMsgLvl=0) else set /a cmMsgLvl=cmMsgLvl
+REM %1:message
+REM %2:color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
+REM    /MsgLvl (0-9)
+set cmClr=%2
+set /a cmMsgLvl=cmClr
+set cmPre=
+set cmSuf=
+if "%cmColorEnabled%" NEQ "1" goto cmgo
+if "%cmClr%"=="" goto cmgo
+if "%cmClr%"=="%cmMsgLvl%" goto cmgo
+if /i "%cmClr%"=="r" (set "cmPre=[91m") & (set "cmSuf=[0m") & goto cmgo
+if /i "%cmClr%"=="g" (set "cmPre=[92m") & (set "cmSuf=[0m") & goto cmgo
+if /i "%cmClr%"=="y" (set "cmPre=[93m") & (set "cmSuf=[0m") & goto cmgo
+if /i "%cmClr%"=="b" (set "cmPre=[94m") & (set "cmSuf=[0m") & goto cmgo
+if /i "%cmClr%"=="m" (set "cmPre=[95m") & (set "cmSuf=[0m") & goto cmgo
+if /i "%cmClr%"=="c" (set "cmPre=[96m") & (set "cmSuf=[0m") & goto cmgo
+:cmgo
 if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
 call:gettime cmyear cmMon cmDay cmHour cmMin cmSec
 set "cmTimeStamp=%cmyear%-%cmmon%-%cmday% %cmhour%:%cmmin%:%cmsec%"
 set "cmLogMsg=%~1"
-if %cmMsgLvl%==0 echo %cmTimeStamp% %cmLogMsg%
+if %cmMsgLvl%==0 echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
 if not exist "%cmWf%" md "%cmWf%"
 if %cmLogLvl% LEQ 0 goto:eof
@@ -305,5 +324,5 @@ goto:eof
 echo;
 echo version: %_version%
 set /p=latest:  <NUL
-curl https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION
+curl "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION"
 goto:eof

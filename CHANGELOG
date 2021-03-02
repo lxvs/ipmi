@@ -1,3 +1,9 @@
+2021-03-02  lxvs
+
+	* NEW: colorful output support.
+	* IMPROVEMENT: remove some empty line outputs.
+	* IMPROVEMENT: minor improvements in codes.
+
 2021-02-26  lxvs
 
 	* CHANGE SIGNING NAME FROM JOHNNY APPLESEED TO LXVS.
