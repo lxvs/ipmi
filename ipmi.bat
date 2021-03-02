@@ -189,6 +189,13 @@ if not exist "%cmWf%" md "%cmWf%"
 set cmCurrentStatus=
 set cmBmcWebStatus=
 set cmLastHttpCode=
+set "cmEwsOrgG=BMC web is accessible."
+set "cmEwsOrgB=BMC web is not ready."
+set "cmEwsTrnG=BMC web is accessible."
+set "cmEwsTrnB=BMC web is down."
+set "cmPingB=Ping got no response."
+set "cmPingOrgG=Ping is OK." REM CM legacy only
+set "cmPingTrnG=Ping is OK." REM CM legacy only
 call:write "----------------------------------------------------------------"
 call:write "Host:           %hostExec%"
 call:write "Max retry:      %cmMaxRetry%"
@@ -206,14 +213,14 @@ if /i "%TtlSeg:~,3%"=="TTL" (
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status is not defined." 8
-        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready." 1) else call:write "Connection is good." g
+        if "%cmver%"=="1" (call:gethttpcode 1) else call:write "%cmPingOrgG%" g
         ping localhost -n 2 >NUL
         goto loop
     )
     if /i "%cmCurrentStatus%" EQU "b" (
         set cmCurrentStatus=g
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status turns good." 8
-        if "%cmver%"=="1" (call:gethttpcode "BMC web is not ready!" "BMC web is ready.") else call:write "Became good." g
+        if "%cmver%"=="1" (call:gethttpcode) else call:write "%cmPingTrnG%" g
         ping localhost -n 2 >NUL
         goto loop
     )
@@ -221,12 +228,12 @@ if /i "%TtlSeg:~,3%"=="TTL" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because of jitters." 8
-        if "%cmver%"=="1" call:gethttpcode "BMC web is not ready!" "BMC web is ready."
+        if "%cmver%"=="1" call:gethttpcode
         ping localhost -n 2 >NUL
         goto loop
     )
     if "%cmver%"=="1" call:write "DEBUG: calling GHC mandatorily." 8
-    if "%cmver%"=="1" call:gethttpcode "BMC web got lost!" "BMC web is ready."
+    if "%cmver%"=="1" call:gethttpcode
     ping localhost -n 2 >NUL
     goto loop
 )
@@ -240,25 +247,26 @@ if "%cmMaxRetry%" GTR "0" (
     goto loop
 ) else goto writebad
 :gethttpcode
+REM %1: (null): do not write change if status was not change.
 for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     call:write "DEBUG: HTTP code updated:   %cmLastHttpCode% to %%i" 8
     call:write "DEBUG: BMC web status:      %cmBmcWebStatus%" 8
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
     if "%%i"=="000" (
-        if "%~3" NEQ "" (
-            call:write "%~1" y
+        if "%~1" NEQ "" (
+            call:write "%cmEwsOrgB%" y
             set cmBmcWebStatus=b
         ) else if /i "%cmBmcWebStatus%" NEQ "b" (
-            call:write "%~1" y
+            call:write "%cmEwsTrnB%" y
             set cmBmcWebStatus=b
         )
     ) else (
-        if "%~3" NEQ "" (
-            call:write "%~2" g
+        if "%~1" NEQ "" (
+            call:write "%cmEwsOrgG%" g
             set cmBmcWebStatus=g
         ) else if /i "%cmBmcWebStatus%" NEQ "g" (
-            call:write "%~2" g
+            call:write "%cmEwsTrnG%" g
             set cmBmcWebStatus=g
         )
     )
@@ -276,7 +284,7 @@ goto loop
 set cmCurrentStatus=b
 set cmBmcWebStatus=
 set cmLastHttpCode=
-call:write "Connection went bad!" r
+call:write "%cmPingB%" r
 goto loop
 :write
 REM %1:message

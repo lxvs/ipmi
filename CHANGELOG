@@ -3,6 +3,7 @@
 	* IMPROVEMENT: add prompt when failed to get latest version. 
 	* IMPROVEMENT: performance.
 	* IMPROVEMENT: change bmc bad info color from red to yellow.
+	* IMPROVEMENT: both code structure and prompts of ping/EWS prompt.
 
 4.23.0 - 2021-03-02  lxvs
 
