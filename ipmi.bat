@@ -324,5 +324,5 @@ goto:eof
 echo;
 echo version: %_version%
 set /p=latest:  <NUL
-curl "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION"
+curl "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION" 2>NUL || echo failed to get.
 goto:eof
