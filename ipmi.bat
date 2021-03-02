@@ -247,10 +247,10 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
     if "%%i"=="000" (
         if "%~3" NEQ "" (
-            call:write "%~1" r
+            call:write "%~1" y
             set cmBmcWebStatus=b
         ) else if /i "%cmBmcWebStatus%" NEQ "b" (
-            call:write "%~1" r
+            call:write "%~1" y
             set cmBmcWebStatus=b
         )
     ) else (

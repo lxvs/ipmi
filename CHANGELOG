@@ -2,6 +2,7 @@
 
 	* IMPROVEMENT: add prompt when failed to get latest version. 
 	* IMPROVEMENT: performance.
+	* IMPROVEMENT: change bmc bad info color from red to yellow.
 
 4.23.0 - 2021-03-02  lxvs
 
