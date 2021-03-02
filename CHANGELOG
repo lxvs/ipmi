@@ -1,6 +1,7 @@
 2021-03-02  lxvs
 
 	* NEW: colorful output support.
+	* BUGFIX: change 'if "%1"...' to 'if "%~1"...'.
 	* IMPROVEMENT: remove some empty line outputs.
 	* IMPROVEMENT: minor improvements in codes.
 

@@ -15,12 +15,12 @@ if "%cmColorEnabled%"=="1" (
     set clrSuf=
     set errPre=
 )
-if "%1"=="" goto usage
+if "%~1"=="" goto usage
 set cmLogLvlTmp=
 set cmMaxRetryTmp=
 echo %1 | findstr /i "? help usage" >NUL && goto usage
-if /i "%1"=="-v" goto version
-if /i "%1"=="/v" goto version
+if /i "%~1"=="-v" goto version
+if /i "%~1"=="/v" goto version
 echo %1 | findstr /i "version" >NUL && goto version
 call:hostparse %1 hostpre
 if "%hostpre%" EQU "crierr" goto:eof
@@ -28,7 +28,7 @@ if "%hostpre%" EQU "notint" ipmitool %* & goto:eof
 goto exec
 :hostparse
 set /a host=%1 2>NUL || goto hostparsestart
-if "%host%" NEQ "%1" (set "%2=notint") & goto:eof
+if "%host%" NEQ "%~1" (set "%2=notint") & goto:eof
 REM integer without dot.
 :hostparsestart
 for /f "delims=. tokens=1-3" %%a in ("%defaultHostPrefix%") do (
@@ -37,7 +37,7 @@ for /f "delims=. tokens=1-3" %%a in ("%defaultHostPrefix%") do (
     if %%c. NEQ . (set prec=%%c) else goto hostparsemid
 )
 :hostparsemid
-for /f "delims=. tokens=1-4,*" %%a in ("%1") do (
+for /f "delims=. tokens=1-4,*" %%a in ("%~1") do (
     if "%%a" NEQ "" (set seca=%%a) else goto afterhostparse
     if "%%b" NEQ "" (set secb=%%b) else goto afterhostparse
     if "%%c" NEQ "" (set secc=%%c) else goto afterhostparse
@@ -56,45 +56,45 @@ set "%2=crierr"
 goto:eof
 :exec
 set hostExec=%hostpre%%1
-if "%2"=="" ping %hostExec% -n 2 & goto:eof
-if /i "%2"=="t" if "%3"=="" ping -t %hostExec% & goto:eof
-if /i "%2"=="-t" if "%3"=="" ping -t %hostExec% & goto:eof
-if /i "%2"=="cm" if "%3"=="" (set cmVer=0) & goto connectionMonitor
-if /i "%2"=="c" (
+if "%~2"=="" ping %hostExec% -n 2 & goto:eof
+if /i "%~2"=="t" if "%~3"=="" ping -t %hostExec% & goto:eof
+if /i "%~2"=="-t" if "%~3"=="" ping -t %hostExec% & goto:eof
+if /i "%~2"=="cm" if "%~3"=="" (set cmVer=0) & goto connectionMonitor
+if /i "%~2"=="c" (
     set cmVer=1
-    if "%3"=="" goto connectionMonitor
+    if "%~3"=="" goto connectionMonitor
     goto preCmParse
     )
-if /i "%2"=="sol" (
-    if "%3"=="" ((call:SOL %1) & goto:eof)
-    if "%4"=="" (
+if /i "%~2"=="sol" (
+    if "%~3"=="" ((call:SOL %1) & goto:eof)
+    if "%~4"=="" (
         set solArg=%3
         goto solargparse
     )
     goto default
 )
-if /i "%2"=="fan" (
-    if "%3"=="" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2f & goto:eof
-    if "%3"=="0" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
-    if "%3"=="auto" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
+if /i "%~2"=="fan" (
+    if "%~3"=="" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2f & goto:eof
+    if "%~3"=="0" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
+    if "%~3"=="auto" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 1
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2c 0xff %3
     goto:eof
 )
-if /i "%2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
-if /i "%2"=="br" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset & goto:eof
+if /i "%~2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
+if /i "%~2"=="br" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset & goto:eof
 goto default
 :preCmParse
-if /i "%3"=="" goto postCmParse
-if /i "%3"=="-L" (
-    if "%4"=="" goto postCmParse
+if /i "%~3"=="" goto postCmParse
+if /i "%~3"=="-L" (
+    if "%~4"=="" goto postCmParse
     set cmLogLvlTmp=%4
     shift /3
     shift /3
     goto preCmParse
 )
-if /i "%3"=="-M" (
-    if "%4"=="" goto postCmParse
+if /i "%~3"=="-M" (
+    if "%~4"=="" goto postCmParse
     set cmMaxRetryTmp=%4
     shift /3
     shift /3
@@ -156,7 +156,7 @@ goto:eof
 :LFN
 call:gettime lfnYear lfnMon lfnDay lfnHour lfnMin
 set "lfnWf=%cd%\SolLogs\%lfnYear%-%lfnMon%-%lfnDay%"
-if "%3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
+if "%~3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
 set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
 goto:eof
 
@@ -165,7 +165,7 @@ title %hostexec% SOL
 echo;
 echo ^> Deactivating previous SOL...
 ipmitool -I lanplus -U admin -P admin -H %hostExec% sol deactivate
-if "%2" NEQ "" set solLfn=%cd%\%2
+if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
 type nul> %solLfn% || ((call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator.") & goto:eof)
 echo;
@@ -246,7 +246,7 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
     if "%%i"=="000" (
-        if "%3" NEQ "" (
+        if "%~3" NEQ "" (
             call:write "%~1" r
             set cmBmcWebStatus=b
         ) else if /i "%cmBmcWebStatus%" NEQ "b" (
@@ -254,7 +254,7 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
             set cmBmcWebStatus=b
         )
     ) else (
-        if "%3" NEQ "" (
+        if "%~3" NEQ "" (
             call:write "%~2" g
             set cmBmcWebStatus=g
         ) else if /i "%cmBmcWebStatus%" NEQ "g" (
