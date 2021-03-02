@@ -1,6 +1,7 @@
 2021-03-02  lxvs
 
 	* IMPROVEMENT: add prompt when failed to get latest version. 
+	* IMPROVEMENT: performance.
 
 4.23.0 - 2021-03-02  lxvs
 
