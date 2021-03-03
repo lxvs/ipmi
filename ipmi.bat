@@ -196,15 +196,14 @@ set "cmEwsTrnB=BMC web is down."
 set "cmPingB=Ping got no response."
 set "cmPingOrgG=Ping is OK." REM CM legacy only
 set "cmPingTrnG=Ping is OK." REM CM legacy only
-call:write "----------------------------------------------------------------"
-call:write "Host:           %hostExec%"
-call:write "Max retry:      %cmMaxRetry%"
+call:write "------------------------------------------------------"
+call:write "Host:        %hostExec%"
+call:write "Max retry:   %cmMaxRetry%"
 if "%cmVer%"=="1" (
-call:write "Log level:      %cmLogLvl%"
-if %cmLogLvl% GTR 0 ^
-call:write "Log folder:     %cmWf%"
-) else call:write "Log folder:     %cmWf%"
-call:write "----------------------------------------------------------------"
+    call:write "Log level:   %cmLogLvl%"
+    if %cmLogLvl% GTR 0 call:write "Log folder:  %cmWf%"
+) else call:write "Log folder:  %cmWf%"
+call:write "------------------------------------------------------"
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
 :afterfor
