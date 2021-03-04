@@ -207,7 +207,7 @@ call:write "------------------------------------------------------"
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
 :afterfor
-if /i "%TtlSeg:~,3%"=="TTL" (
+if /i "%TtlSeg:~0,3%"=="TTL" (
     call:write "ping: OK." 2
     if not defined cmCurrentStatus (
         set cmCurrentStatus=g
@@ -223,7 +223,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
         ping localhost -n 2 >NUL
         goto loop
     )
-    if /i "%cmCurrentStatus:~,1%" EQU "b" (
+    if /i "%cmCurrentStatus:~0,1%" EQU "b" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because of jitters." 8
@@ -239,7 +239,7 @@ if /i "%TtlSeg:~,3%"=="TTL" (
 call:write "ping: bad!" 2
 if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
-if /i "%cmCurrentStatus:~,1%"=="b" goto trans
+if /i "%cmCurrentStatus:~0,1%"=="b" goto trans
 if "%cmMaxRetry%" GTR "0" (
     set cmCurrentStatus=b0
     call:write "Bad? retrying." 1
