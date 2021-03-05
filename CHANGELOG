@@ -1,7 +1,10 @@
 2021-03-05  lxvs
 
+	* NEW: EWS status transition. Use '-E <num>' argument to define.
+	       Ping Retry argument is changed to '-P' from '-M'.
 	* IMPROVEMENT: rename var 'cmMaxRetry' to 'cmPingRetry'.
 	* IMPROVEMENT: reword some statements: 'bad' -> 'failed'.
+	* IMPROVEMENT: minor ones on codes.
 
 4.23.2 - 2021-03-05  lxvs
 

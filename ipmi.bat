@@ -3,6 +3,7 @@ setlocal
 REM --- Default values are set here
 set "defaultHostPrefix=100.2.76"
 set /a cmPingRetry=3
+set /a cmEwsRetry=2
 set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
@@ -93,9 +94,16 @@ if /i "%~3"=="-L" (
     shift /3
     goto preCmParse
 )
-if /i "%~3"=="-M" (
+if /i "%~3"=="-P" (
     if "%~4"=="" goto postCmParse
     set cmPingRetryTmp=%4
+    shift /3
+    shift /3
+    goto preCmParse
+)
+if /i "%~3"=="-E" (
+    if "%~4"=="" goto postCmParse
+    set cmEwsRetryTmp=%4
     shift /3
     shift /3
     goto preCmParse
@@ -104,8 +112,10 @@ call:err Warning 760 "Unsupported CM parameter(s) met!"
 :postCmParse
 set /a cmLogLvlTmpPost=cmLogLvlTmp
 set /a cmPingRetryTmpPost=cmPingRetryTmp
+set /a cmEwsRetryTmpPost=cmEwsRetryTmp
 if "%cmLogLvlTmp%" NEQ "" if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (set /a cmLogLvl=cmLogLvlTmpPost) else call:err Warning 800 "Parameter 'log level' was designated but did not applied."
-if "%cmPingRetryTmp%" NEQ "" if "%cmPingRetryTmpPost%"=="%cmPingRetryTmp%" (set /a cmPingRetry=cmPingRetryTmpPost) else call:err Warning 840 "Parameter 'max retry' was designated but did not applied."
+if "%cmPingRetryTmp%" NEQ "" if "%cmPingRetryTmpPost%"=="%cmPingRetryTmp%" (set /a cmPingRetry=cmPingRetryTmpPost) else call:err Warning 840 "Parameter 'ping retry' was designated but did not applied."
+if "%cmEwsRetryTmp%" NEQ "" if "%cmEwsRetryTmpPost%"=="%cmEwsRetryTmp%" (set /a cmEwsRetry=cmEwsRetryTmpPost) else call:err Warning 840 "Parameter 'EWS retry' was designated but did not applied."
 goto connectionMonitor
 :solargparse
 if "%solArg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
@@ -129,15 +139,17 @@ echo    ipmi ^<IP^> [t]                             Ping
 echo    ipmi ^<IP^> BIOS                            Force to enter BIOS setup on next boot
 echo    ipmi ^<IP^> BR                              Force to enter BIOS setup on next boot and reset immediately
 echo    ipmi ^<IP^> cm                              Connection monitor legacy
-echo    ipmi ^<IP^> c [-L ^<L^>] [-M ^<M^>]             Connection monitor upgraded: also monitors if bmc web is ready.
+echo    ipmi ^<IP^> c [-L ^<L^>] [-P ^<P^>]             Connection monitor upgraded: also monitors if bmc web is ready.
 echo                                                  ^<L^> for Log level:
 echo                                                          0: Do not write any log.
 echo                                                          1: Log only what shows in console.
 echo                                                          2: ^(default^) Also log retries before anouncing a bad
 echo                                                             connection, and http code changes.
 echo                                                          3: Also log every ping and http code result.
-echo                                                  ^<M^> for Max retry:  ^(default: 3^)
-echo                                                          Retrying times before anouncing a bad connection.
+echo                                                  ^<P^> for Ping retry:  ^(default: 3^)
+echo                                                          Trying times before anouncing a ping failure.
+echo                                                  ^<E^> for EWS retry:  ^(default: 2^)
+echo                                                          Trying times before anouncing a BMC web down.
 echo    ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
 echo    ipmi ^<IP^> fan 0^|auto                      ^(Need Porting^) Set fan mode to auto
 echo    ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(1~100^)
@@ -198,8 +210,9 @@ set "cmPingOrgG=Ping is OK." REM CM legacy only
 set "cmPingTrnG=Ping is OK." REM CM legacy only
 call:write "------------------------------------------------------"
 call:write "Host:        %hostExec%"
-call:write "Max retry:   %cmPingRetry%"
+call:write "Ping retry:  %cmPingRetry%"
 if "%cmVer%"=="1" (
+    call:write "EWS retry:   %cmEwsRetry%"
     call:write "Log level:   %cmLogLvl%"
     if %cmLogLvl% GTR 0 call:write "Log folder:  %cmWf%"
 ) else call:write "Log folder:  %cmWf%"
@@ -240,7 +253,7 @@ call:write "ping: failed!" 2
 if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
 if /i "%cmCurrentStatus:~0,1%"=="b" goto trans
-if "%cmPingRetry%" GTR "0" (
+if %cmPingRetry% GTR 0 (
     set cmCurrentStatus=b0
     call:write "Ping failed, retrying." 1
     goto loop
@@ -254,15 +267,26 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     if "%%i"=="000" (
         if "%cmEwsStatus%"=="" (
             call:write "%cmEwsOrgB%" y
+            set cmEwsStatus=b
         ) else if /i "%cmEwsStatus%" NEQ "b" (
-            call:write "%cmEwsTrnB%" y)
-        set cmEwsStatus=b
+            if /i "%cmEwsRetry:~0,1%"=="b" (call:EwsTrans) & goto:eof
+            if %cmEwsRetry% GTR 0 (
+                set cmEwsStatus=b0
+                call:write "EWS seems down, retrying." 1
+                goto:eof
+            ) else (
+                call:write "%cmEwsTrnB%" y
+                set cmEwsStatus=b
+            )
+        )
     ) else (
         if "%cmEwsStatus%"=="" (
             call:write "%cmEwsOrgG%" g
+            set cmEwsStatus=g
         ) else if /i "%cmEwsStatus%" NEQ "g" (
-            call:write "%cmEwsTrnG%" g)
-        set cmEwsStatus=g
+            call:write "%cmEwsTrnG%" g
+            set cmEwsStatus=g
+        )
     )
 )
 goto:eof
@@ -270,7 +294,7 @@ goto:eof
 set /a cmPingRetried=%cmCurrentStatus:~-1%
 set /a cmPingRetried+=1
 set cmCurrentStatus=b%cmPingRetried%
-if "%cmEwsStatus%"=="b" set /a "cmPingRetried=cmPingRetry"
+if /i "%cmEwsStatus%"=="b" set /a "cmPingRetried=cmPingRetry"
 if %cmPingRetried% GEQ %cmPingRetry% goto writebad
 call:write "Ping failed, retried = %cmPingRetried%." 1
 goto loop
@@ -280,6 +304,16 @@ set cmEwsStatus=
 set cmLastHttpCode=
 call:write "%cmPingB%" r
 goto loop
+:EwsTrans
+set /a cmEwsRetried=%cmEwsStatus:~-1%
+set /a cmEwsRetried+=1
+set cmEwsStatus=b%cmEwsRetried%
+if %cmEwsRetried% GEQ %cmEwsRetry% (
+    call:write "%cmEwsTrnB%" y
+    set cmEwsStatus=b
+)
+call:write "EWS seems down, retried = %cmEwsRetried%." 1
+goto:eof
 :write
 REM %1:message
 REM %2:color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
@@ -288,7 +322,7 @@ set cmClr=%2
 set /a cmMsgLvl=cmClr
 set cmPre=
 set cmSuf=
-if "%cmColorEnabled%" NEQ "1" goto cmgo
+if %cmColorEnabled% NEQ 1 goto cmgo
 if "%cmClr%"=="" goto cmgo
 if "%cmClr%"=="%cmMsgLvl%" goto cmgo
 if /i "%cmClr%"=="r" (set "cmPre=[91m") & (set "cmSuf=[0m") & goto cmgo
