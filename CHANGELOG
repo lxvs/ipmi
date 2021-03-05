@@ -1,3 +1,8 @@
+2021-03-05  lxvs
+
+	* IMPROVEMENT: rename var 'cmMaxRetry' to 'cmPingRetry'.
+	* IMPROVEMENT: reword some statements: 'bad' -> 'failed'.
+
 4.23.2 - 2021-03-05  lxvs
 
 	* BUGFIX: EWS status original down was treated as turning down.

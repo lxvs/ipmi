@@ -2,7 +2,7 @@
 setlocal
 REM --- Default values are set here
 set "defaultHostPrefix=100.2.76"
-set /a cmMaxRetry=3
+set /a cmPingRetry=3
 set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
@@ -17,7 +17,7 @@ if "%cmColorEnabled%"=="1" (
 )
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
-set cmMaxRetryTmp=
+set cmPingRetryTmp=
 echo %1 | findstr /i "? help usage" >NUL && goto usage
 if /i "%~1"=="-v" goto version
 if /i "%~1"=="/v" goto version
@@ -95,7 +95,7 @@ if /i "%~3"=="-L" (
 )
 if /i "%~3"=="-M" (
     if "%~4"=="" goto postCmParse
-    set cmMaxRetryTmp=%4
+    set cmPingRetryTmp=%4
     shift /3
     shift /3
     goto preCmParse
@@ -103,9 +103,9 @@ if /i "%~3"=="-M" (
 call:err Warning 760 "Unsupported CM parameter(s) met!"
 :postCmParse
 set /a cmLogLvlTmpPost=cmLogLvlTmp
-set /a cmMaxRetryTmpPost=cmMaxRetryTmp
+set /a cmPingRetryTmpPost=cmPingRetryTmp
 if "%cmLogLvlTmp%" NEQ "" if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (set /a cmLogLvl=cmLogLvlTmpPost) else call:err Warning 800 "Parameter 'log level' was designated but did not applied."
-if "%cmMaxRetryTmp%" NEQ "" if "%cmMaxRetryTmpPost%"=="%cmMaxRetryTmp%" (set /a cmMaxRetry=cmMaxRetryTmpPost) else call:err Warning 840 "Parameter 'max retry' was designated but did not applied."
+if "%cmPingRetryTmp%" NEQ "" if "%cmPingRetryTmpPost%"=="%cmPingRetryTmp%" (set /a cmPingRetry=cmPingRetryTmpPost) else call:err Warning 840 "Parameter 'max retry' was designated but did not applied."
 goto connectionMonitor
 :solargparse
 if "%solArg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
@@ -198,7 +198,7 @@ set "cmPingOrgG=Ping is OK." REM CM legacy only
 set "cmPingTrnG=Ping is OK." REM CM legacy only
 call:write "------------------------------------------------------"
 call:write "Host:        %hostExec%"
-call:write "Max retry:   %cmMaxRetry%"
+call:write "Max retry:   %cmPingRetry%"
 if "%cmVer%"=="1" (
     call:write "Log level:   %cmLogLvl%"
     if %cmLogLvl% GTR 0 call:write "Log folder:  %cmWf%"
@@ -236,13 +236,13 @@ if /i "%TtlSeg:~0,3%"=="TTL" (
     ping localhost -n 2 >NUL
     goto loop
 )
-call:write "ping: bad!" 2
+call:write "ping: failed!" 2
 if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
 if /i "%cmCurrentStatus:~0,1%"=="b" goto trans
-if "%cmMaxRetry%" GTR "0" (
+if "%cmPingRetry%" GTR "0" (
     set cmCurrentStatus=b0
-    call:write "Bad? retrying." 1
+    call:write "Ping failed, retrying." 1
     goto loop
 ) else goto writebad
 :gethttpcode
@@ -267,12 +267,12 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
 )
 goto:eof
 :trans
-set /a cmRetried=%cmCurrentStatus:~-1%
-set /a cmRetried+=1
-set cmCurrentStatus=b%cmRetried%
-if "%cmEwsStatus%"=="b" set /a "cmRetried=cmMaxRetry"
-if %cmRetried% GEQ %cmMaxRetry% goto writebad
-call:write "Bad, retried = %cmRetried%." 1
+set /a cmPingRetried=%cmCurrentStatus:~-1%
+set /a cmPingRetried+=1
+set cmCurrentStatus=b%cmPingRetried%
+if "%cmEwsStatus%"=="b" set /a "cmPingRetried=cmPingRetry"
+if %cmPingRetried% GEQ %cmPingRetry% goto writebad
+call:write "Ping failed, retried = %cmPingRetried%." 1
 goto loop
 :writebad
 set cmCurrentStatus=b
