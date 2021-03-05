@@ -187,7 +187,7 @@ title %hostExec%
 set "cmWf=%cd%\ConnectionLogs"
 if not exist "%cmWf%" md "%cmWf%"
 set cmCurrentStatus=
-set cmBmcWebStatus=
+set cmEwsStatus=
 set cmLastHttpCode=
 set "cmEwsOrgG=BMC web is accessible."
 set "cmEwsOrgB=BMC web is not ready."
@@ -248,21 +248,21 @@ if "%cmMaxRetry%" GTR "0" (
 :gethttpcode
 for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     call:write "DEBUG: HTTP code updated:   %cmLastHttpCode% to %%i" 8
-    call:write "DEBUG: BMC web status:      %cmBmcWebStatus%" 8
+    call:write "DEBUG: BMC web status:      %cmEwsStatus%" 8
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
     if "%%i"=="000" (
-        if "%cmBmcWebStatus%"=="" (
+        if "%cmEwsStatus%"=="" (
             call:write "%cmEwsOrgB%" y
-        ) else if /i "%cmBmcWebStatus%" NEQ "b" (
+        ) else if /i "%cmEwsStatus%" NEQ "b" (
             call:write "%cmEwsTrnB%" y)
-        set cmBmcWebStatus=b
+        set cmEwsStatus=b
     ) else (
-        if "%cmBmcWebStatus%"=="" (
+        if "%cmEwsStatus%"=="" (
             call:write "%cmEwsOrgG%" g
-        ) else if /i "%cmBmcWebStatus%" NEQ "g" (
+        ) else if /i "%cmEwsStatus%" NEQ "g" (
             call:write "%cmEwsTrnG%" g)
-        set cmBmcWebStatus=g
+        set cmEwsStatus=g
     )
 )
 goto:eof
@@ -270,13 +270,13 @@ goto:eof
 set /a cmRetried=%cmCurrentStatus:~-1%
 set /a cmRetried+=1
 set cmCurrentStatus=b%cmRetried%
-if "%cmBmcWebStatus%"=="b" set /a "cmRetried=cmMaxRetry"
+if "%cmEwsStatus%"=="b" set /a "cmRetried=cmMaxRetry"
 if %cmRetried% GEQ %cmMaxRetry% goto writebad
 call:write "Bad, retried = %cmRetried%." 1
 goto loop
 :writebad
 set cmCurrentStatus=b
-set cmBmcWebStatus=
+set cmEwsStatus=
 set cmLastHttpCode=
 call:write "%cmPingB%" r
 goto loop
