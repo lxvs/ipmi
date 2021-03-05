@@ -1,4 +1,4 @@
-2021-03-05  lxvs
+4.23.2 - 2021-03-05  lxvs
 
 	* BUGFIX: EWS status original down was treated as turning down.
 	* IMPROVEMENT: rename vairable 'cmBmcWebStatus' to 'cmEwsStatus'.
