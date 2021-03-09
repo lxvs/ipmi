@@ -7,7 +7,7 @@ set /a cmEwsRetry=2
 set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
-set "_version=4.23.2"
+set "_version=4.24.0"
 title IPMI %_version%
 if "%cmColorEnabled%"=="1" (
     set "clrSuf=[0m"

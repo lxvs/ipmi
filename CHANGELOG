@@ -1,4 +1,4 @@
-2021-03-05  lxvs
+4.24.0 - 2021-03-09  lxvs
 
 	* NEW: EWS status transition. Use '-E <num>' argument to define.
 	       Ping Retry argument is changed to '-P' from '-M'.
