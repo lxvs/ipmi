@@ -2,8 +2,10 @@
 
 	* BUGFIX: another EWS accessiblility info shows when jitters.
 	* BUGFIX: a typo in codes.
+	* BUGFIX: there is no help info on argument '-E' of CM.
 	* IMPROVEMENT: code structure.
 	* IMPROVEMENT: use more to show usage info.
+	* IMPROVEMENT: adjustments on usage info typesettings.
 
 4.24.0 - 2021-03-09  lxvs
 

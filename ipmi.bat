@@ -201,45 +201,79 @@ goto:eof
 :usage
 (
 echo;
-echo  IPMI script %_version%
-echo  https://github.com/lxvs/ipmi
+echo IPMI script %_version%
+echo https://github.com/lxvs/ipmi
 echo;
 echo;
-echo  Usage:
+echo Usage:
 echo;
-echo    ipmi ^<IP^> arg1 [arg2 [...]]               Send IPMITool commands
-echo    ipmi version ^| -v ^| /v                    Get current and latest version
-echo    ipmi [? ^| help ^| usage]                   Get help on this script
+echo ipmi ^<IP^> arg1 [arg2 [...]]
+echo     Send IPMITool commands
+echo;
+echo ipmi version ^| -v ^| /v
+echo     Get current and latest version
+echo;
+echo ipmi [? ^| help ^| usage]
+echo     Get help on this script
+echo;
 call:LFN *IP* fn
-echo    ipmi ^<IP^> SOL                             Collect SOL log to %fn%
-echo    ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]       Collect SOL log to %cd%\^<FileName^>
-echo    ipmi ^<IP^> [t]                             Ping
-echo    ipmi ^<IP^> BIOS                            Force to enter BIOS setup on next boot
-echo    ipmi ^<IP^> BR                              Force to enter BIOS setup on next boot and reset immediately
-echo    ipmi ^<IP^> cm                              Connection monitor legacy
-echo    ipmi ^<IP^> c [-L ^<L^>] [-P ^<P^>]             Connection monitor upgraded: also monitors if bmc web is ready.
-echo                                                  ^<L^> for Log level:
-echo                                                          0: Do not write any log.
-echo                                                          1: Log only what shows in console.
-echo                                                          2: ^(default^) Also log retries before anouncing a bad
-echo                                                             connection, and http code changes.
-echo                                                          3: Also log every ping and http code result.
-echo                                                  ^<P^> for Ping retry:  ^(default: 3^)
-echo                                                          Trying times before anouncing a ping failure.
-echo                                                  ^<E^> for EWS retry:  ^(default: 2^)
-echo                                                          Trying times before anouncing a BMC web down.
-echo    ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
-echo    ipmi ^<IP^> fan 0^|auto                      ^(Need Porting^) Set fan mode to auto
-echo    ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(1~100^)
-echo    ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter^(s^)
+echo ipmi ^<IP^> SOL
+echo     Collect SOL log to %fn%
+echo;
+echo ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]
+echo     Collect SOL log to %cd%\^<FileName^>
+echo;
+echo ipmi ^<IP^> [t]
+echo     Ping
+echo;
+echo ipmi ^<IP^> BIOS
+echo     Force to enter BIOS setup on next boot
+echo;
+echo ipmi ^<IP^> BR
+echo     Force to enter BIOS setup on next boot and reset immediately
+echo;
+echo ipmi ^<IP^> CM
+echo     Connection monitor legacy
+echo;
+echo ipmi ^<IP^> C [-L ^<L^>] [-P ^<P^>] [-E ^<E^>]
+echo     Connection monitor upgraded: also monitors if bmc web is ready.
+echo;
+echo     ^<L^> for Log level:
+echo         0: Do not write any log.
+echo         1: Log only what shows in console.
+echo         2: ^(default^) Also log retries before anouncing a bad
+echo            connection, and http code changes.
+echo         3: Also log every ping and http code result.
+echo;
+echo     ^<P^> for Ping retry:  ^(default: 3^)
+echo         Trying times before anouncing a ping failure.
+echo;
+echo     ^<E^> for EWS retry:  ^(default: 2^)
+echo         Trying times before anouncing a BMC web down.
+echo;
+echo ipmi ^<IP^> fan
+echo     ^(Need Porting^) Request current fan mode.
+echo         00: auto, 01: manual
+echo;
+echo ipmi ^<IP^> fan 0^|auto
+echo     ^(Need Porting^) Set fan mode to auto
+echo;
+echo ipmi ^<IP^> fan ^<speed^>
+echo     ^(Need Porting^) Set fan speed ^(%%^)
+echo         1~100
+echo;
+echo ipmi [arg1 [arg2 [...]]]
+echo     Get ipmitool help on specific parameter^(s^)
+echo;
 echo;
 echo  Examples:
 echo;
-echo    If defaultHostPrefix was set to '100.2.76.', then
+echo If defaultHostPrefix was set to '100.2.76.', then
 echo;
-echo    'ipmi 255 arg1 arg2 arg3' stands for:
+echo ipmi 255 arg1 arg2 arg3
+echo     stands for:
 echo;
-echo    ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
+echo ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
 )> usage.tmp
 more usage.tmp
 del usage.tmp
