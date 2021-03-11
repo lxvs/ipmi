@@ -1,3 +1,8 @@
+2021-03-11  lxvs
+
+	* BUGFIX: another EWS accessiblility info shows when jitters.
+	* BUGFIX: a typo in codes.
+
 4.24.0 - 2021-03-09  lxvs
 
 	* NEW: EWS status transition. Use '-E <num>' argument to define.

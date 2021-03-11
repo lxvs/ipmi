@@ -269,7 +269,10 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
             call:write "%cmEwsOrgB%" y
             set cmEwsStatus=b
         ) else if /i "%cmEwsStatus%" NEQ "b" (
-            if /i "%cmEwsRetry:~0,1%"=="b" (call:EwsTrans) & goto:eof
+            if /i "%cmEwsStatus:~0,1%"=="b" (
+                call:EwsTrans
+                goto:eof
+            )
             if %cmEwsRetry% GTR 0 (
                 set cmEwsStatus=b0
                 call:write "EWS seems down, retrying." 1
@@ -282,11 +285,10 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     ) else (
         if "%cmEwsStatus%"=="" (
             call:write "%cmEwsOrgG%" g
-            set cmEwsStatus=g
-        ) else if /i "%cmEwsStatus%" NEQ "g" (
+        ) else if /i "%cmEwsStatus%"=="b" (
             call:write "%cmEwsTrnG%" g
-            set cmEwsStatus=g
         )
+        set cmEwsStatus=g
     )
 )
 goto:eof
