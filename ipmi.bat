@@ -25,49 +25,87 @@ if /i "%~1"=="/v" goto version
 echo %1 | findstr /i "version" >NUL && goto version
 call:hostparse %1 hostpre
 if "%hostpre%" EQU "crierr" goto:eof
-if "%hostpre%" EQU "notint" ipmitool %* & goto:eof
+if "%hostpre%" EQU "notint" (
+    ipmitool %*
+    goto:eof
+)
 goto exec
 :hostparse
 set /a host=%1 2>NUL || goto hostparsestart
-if "%host%" NEQ "%~1" (set "%2=notint") & goto:eof
+if "%host%" NEQ "%~1" (
+    set "%2=notint"
+    goto:eof
+)
 REM integer without dot.
 :hostparsestart
 for /f "delims=. tokens=1-3" %%a in ("%defaultHostPrefix%") do (
-    if %%a. NEQ . (set prea=%%a) else goto hostparsemid
-    if %%b. NEQ . (set preb=%%b) else goto hostparsemid
-    if %%c. NEQ . (set prec=%%c) else goto hostparsemid
+    if "%%a" NEQ "" set "prea=%%a" else goto hostparsemid
+    if "%%b" NEQ "" set "preb=%%b" else goto hostparsemid
+    if "%%c" NEQ "" set "prec=%%c" else goto hostparsemid
 )
 :hostparsemid
 for /f "delims=. tokens=1-4,*" %%a in ("%~1") do (
-    if "%%a" NEQ "" (set seca=%%a) else goto afterhostparse
-    if "%%b" NEQ "" (set secb=%%b) else goto afterhostparse
-    if "%%c" NEQ "" (set secc=%%c) else goto afterhostparse
-    if "%%d" NEQ "" (set secd=%%d) else goto afterhostparse
-    if "%%e" NEQ "" (set sece=%%e) else goto afterhostparse
+    if "%%a" NEQ "" set "seca=%%a" else goto afterhostparse
+    if "%%b" NEQ "" set "secb=%%b" else goto afterhostparse
+    if "%%c" NEQ "" set "secc=%%c" else goto afterhostparse
+    if "%%d" NEQ "" set "secd=%%d" else goto afterhostparse
+    if "%%e" NEQ "" set "sece=%%e" else goto afterhostparse
 )
 :afterhostparse
-if defined sece ((call:err Error 230 "IP input has more than 4 sections.") & (set "%2=crierr") & goto:eof)
-if defined secd (set %2=) & goto:eof
-if defined secc if defined prea (set %2=%prea%.) & goto:eof
-if defined secb if defined preb (set %2=%prea%.%preb%.) & goto:eof
-if defined seca if defined prec (set %2=%prea%.%preb%.%prec%.) & goto:eof
+if defined sece (
+    call:err Error 230 "IP input has more than 4 sections."
+    set "%2=crierr"
+    goto:eof
+)
+if defined secd (
+    set %2=
+    goto:eof
+)
+if defined secc if defined prea (
+    set %2=%prea%.
+    goto:eof
+)
+if defined secb if defined preb (
+    set %2=%prea%.%preb%.
+    goto:eof
+)
+if defined seca if defined prec (
+    set %2=%prea%.%preb%.%prec%.
+    goto:eof
+)
 call:err Error 240 "Parsed IP has less than 4 sections." ^
          "Check either input or variable 'defaultHostPrefix'."
 set "%2=crierr"
 goto:eof
+
 :exec
 set hostExec=%hostpre%%1
-if "%~2"=="" ping %hostExec% -n 2 & goto:eof
-if /i "%~2"=="t" if "%~3"=="" ping -t %hostExec% & goto:eof
-if /i "%~2"=="-t" if "%~3"=="" ping -t %hostExec% & goto:eof
-if /i "%~2"=="cm" if "%~3"=="" (set cmVer=0) & goto connectionMonitor
+if "%~2"=="" (
+    ping %hostExec% -n 2
+    goto:eof
+)
+if /i "%~2"=="t" if "%~3"=="" (
+    ping -t %hostExec%
+    goto:eof
+)
+if /i "%~2"=="-t" if "%~3"=="" (
+    ping -t %hostExec%
+    goto:eof
+)
+if /i "%~2"=="cm" if "%~3"=="" (
+    set cmVer=0
+    goto connectionMonitor
+)
 if /i "%~2"=="c" (
     set cmVer=1
     if "%~3"=="" goto connectionMonitor
     goto preCmParse
-    )
+)
 if /i "%~2"=="sol" (
-    if "%~3"=="" ((call:SOL %1) & goto:eof)
+    if "%~3"=="" (
+        call:SOL %1
+        goto:eof
+    )
     if "%~4"=="" (
         set solArg=%3
         goto solargparse
@@ -75,16 +113,33 @@ if /i "%~2"=="sol" (
     goto default
 )
 if /i "%~2"=="fan" (
-    if "%~3"=="" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2f & goto:eof
-    if "%~3"=="0" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
-    if "%~3"=="auto" ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0 & goto:eof
+    if "%~3"=="" (
+        ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2f
+        goto:eof
+    )
+    if "%~3"=="0" (
+        ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0
+        goto:eof
+    )
+    if "%~3"=="auto" (
+        ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0
+        goto:eof
+    )
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 1
     ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2c 0xff %3
     goto:eof
 )
-if /i "%~2"=="bios" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & goto:eof
-if /i "%~2"=="br" ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios & ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset & goto:eof
+if /i "%~2"=="bios" (
+    ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios
+    goto:eof
+)
+if /i "%~2"=="br" (
+    ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios
+    ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset
+    goto:eof
+)
 goto default
+
 :preCmParse
 if /i "%~3"=="" goto postCmParse
 if /i "%~3"=="-L" (
@@ -113,15 +168,36 @@ call:err Warning 760 "Unsupported CM parameter(s) met!"
 set /a cmLogLvlTmpPost=cmLogLvlTmp
 set /a cmPingRetryTmpPost=cmPingRetryTmp
 set /a cmEwsRetryTmpPost=cmEwsRetryTmp
-if "%cmLogLvlTmp%" NEQ "" if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (set /a cmLogLvl=cmLogLvlTmpPost) else call:err Warning 800 "Parameter 'log level' was designated but did not applied."
-if "%cmPingRetryTmp%" NEQ "" if "%cmPingRetryTmpPost%"=="%cmPingRetryTmp%" (set /a cmPingRetry=cmPingRetryTmpPost) else call:err Warning 840 "Parameter 'ping retry' was designated but did not applied."
-if "%cmEwsRetryTmp%" NEQ "" if "%cmEwsRetryTmpPost%"=="%cmEwsRetryTmp%" (set /a cmEwsRetry=cmEwsRetryTmpPost) else call:err Warning 840 "Parameter 'EWS retry' was designated but did not applied."
+if "%cmLogLvlTmp%" NEQ "" if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (
+    set /a cmLogLvl=cmLogLvlTmpPost
+) else (
+    call:err Warning 800 "Parameter 'log level' was designated but did not applied."
+)
+if "%cmPingRetryTmp%" NEQ "" if "%cmPingRetryTmpPost%"=="%cmPingRetryTmp%" (
+    set /a cmPingRetry=cmPingRetryTmpPost
+) else (
+    call:err Warning 840 "Parameter 'ping retry' was designated but did not applied."
+)
+if "%cmEwsRetryTmp%" NEQ "" if "%cmEwsRetryTmpPost%"=="%cmEwsRetryTmp%" (
+    set /a cmEwsRetry=cmEwsRetryTmpPost
+) else (
+    call:err Warning 840 "Parameter 'EWS retry' was designated but did not applied."
+)
 goto connectionMonitor
 :solargparse
-if "%solArg:~-4%"==".log" ((call:SOL %1 %3) & goto:eof)
-if "%solArg:~-4%"==".txt" ((call:SOL %1 %3) & goto:eof)
+if "%solArg:~-4%"==".log" (
+    call:SOL %1 %3
+    goto:eof
+)
+if "%solArg:~-4%"==".txt" (
+    call:SOL %1 %3
+    goto:eof
+)
+
 :default
-ipmitool -I lanplus -U admin -P admin -H %hostpre%%* & goto:eof
+ipmitool -I lanplus -U admin -P admin -H %hostpre%%*
+goto:eof
+
 :usage
 echo;
 echo  IPMI script %_version%
@@ -179,9 +255,12 @@ echo ^> Deactivating previous SOL...
 ipmitool -I lanplus -U admin -P admin -H %hostExec% sol deactivate
 if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
-type nul> %solLfn% || ((call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator.") & goto:eof)
+type nul> %solLfn% || (
+    call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator."
+    goto:eof
+)
 echo;
-echo ^> Log file saved to %solLfn%
+echo ^> Log file will be at %solLfn%
 echo ^> Activate SOL...
 explorer /select,"%solLfn%"
 (ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate)> %solLfn%
@@ -191,7 +270,10 @@ goto:eof
 echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
 :errshift
 shift /3
-if "%~3" NEQ "" (echo %errPre%-^> %~3%clrSuf%) & goto errshift
+if "%~3" NEQ "" (
+    echo %errPre%-^> %~3%clrSuf%
+    goto errshift
+)
 goto:eof
 
 :connectionMonitor
@@ -217,8 +299,13 @@ if "%cmVer%"=="1" (
     if %cmLogLvl% GTR 0 call:write "Log folder:  %cmWf%"
 ) else call:write "Log folder:  %cmWf%"
 call:write "------------------------------------------------------"
+
 :loop
-for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (set TtlSeg=%%f) & goto afterfor
+for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (
+    set TtlSeg=%%f
+    goto afterfor
+)
+
 :afterfor
 if /i "%TtlSeg:~0,3%"=="TTL" (
     call:write "ping: OK." 2
@@ -258,12 +345,16 @@ if %cmPingRetry% GTR 0 (
     call:write "Ping failed, retrying." 1
     goto loop
 ) else goto writebad
+
 :gethttpcode
 for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     call:write "DEBUG: HTTP code updated:   %cmLastHttpCode% to %%i" 8
     call:write "DEBUG: BMC web status:      %cmEwsStatus%" 8
     call:write "HTTP code: %%i" 2
-    if "%%i" NEQ "%cmLastHttpCode%" (set cmLastHttpCode=%%i) & call:write "HTTP code updated: %%i" 1
+    if "%%i" NEQ "%cmLastHttpCode%" (
+        set cmLastHttpCode=%%i
+        call:write "HTTP code updated: %%i" 1
+    )
     if "%%i"=="000" (
         if "%cmEwsStatus%"=="" (
             call:write "%cmEwsOrgB%" y
@@ -292,6 +383,7 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
     )
 )
 goto:eof
+
 :trans
 set /a cmPingRetried=%cmCurrentStatus:~-1%
 set /a cmPingRetried+=1
@@ -300,12 +392,14 @@ if /i "%cmEwsStatus%"=="b" set /a "cmPingRetried=cmPingRetry"
 if %cmPingRetried% GEQ %cmPingRetry% goto writebad
 call:write "Ping failed, retried = %cmPingRetried%." 1
 goto loop
+
 :writebad
 set cmCurrentStatus=b
 set cmEwsStatus=
 set cmLastHttpCode=
 call:write "%cmPingB%" r
 goto loop
+
 :EwsTrans
 set /a cmEwsRetried=%cmEwsStatus:~-1%
 set /a cmEwsRetried+=1
@@ -316,10 +410,11 @@ if %cmEwsRetried% GEQ %cmEwsRetry% (
 )
 call:write "EWS seems down, retried = %cmEwsRetried%." 1
 goto:eof
+
 :write
 REM %1:message
 REM %2:color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
-REM    /MsgLvl (0-9)
+REM    -OR- MsgLvl (0-9)
 set cmClr=%2
 set /a cmMsgLvl=cmClr
 set cmPre=
@@ -327,12 +422,36 @@ set cmSuf=
 if %cmColorEnabled% NEQ 1 goto cmgo
 if "%cmClr%"=="" goto cmgo
 if "%cmClr%"=="%cmMsgLvl%" goto cmgo
-if /i "%cmClr%"=="r" (set "cmPre=[91m") & (set "cmSuf=[0m") & goto cmgo
-if /i "%cmClr%"=="g" (set "cmPre=[92m") & (set "cmSuf=[0m") & goto cmgo
-if /i "%cmClr%"=="y" (set "cmPre=[93m") & (set "cmSuf=[0m") & goto cmgo
-if /i "%cmClr%"=="b" (set "cmPre=[94m") & (set "cmSuf=[0m") & goto cmgo
-if /i "%cmClr%"=="m" (set "cmPre=[95m") & (set "cmSuf=[0m") & goto cmgo
-if /i "%cmClr%"=="c" (set "cmPre=[96m") & (set "cmSuf=[0m") & goto cmgo
+if /i "%cmClr%"=="r" (
+    set "cmPre=[91m"
+    set "cmSuf=[0m"
+    goto cmgo
+)
+if /i "%cmClr%"=="g" (
+    set "cmPre=[92m"
+    set "cmSuf=[0m"
+    goto cmgo
+)
+if /i "%cmClr%"=="y" (
+    set "cmPre=[93m"
+    set "cmSuf=[0m"
+    goto cmgo
+)
+if /i "%cmClr%"=="b" (
+    set "cmPre=[94m"
+    set "cmSuf=[0m"
+    goto cmgo
+)
+if /i "%cmClr%"=="m" (
+    set "cmPre=[95m"
+    set "cmSuf=[0m"
+    goto cmgo
+)
+if /i "%cmClr%"=="c" (
+    set "cmPre=[96m"
+    set "cmSuf=[0m"
+    goto cmgo
+)
 :cmgo
 if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
 call:gettime cmyear cmMon cmDay cmHour cmMin cmSec
