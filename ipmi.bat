@@ -438,8 +438,11 @@ set /a cmPingRetried=%cmCurrentStatus:~-1%
 set /a cmPingRetried+=1
 set cmCurrentStatus=b%cmPingRetried%
 if /i "%cmEwsStatus%"=="b" set /a "cmPingRetried=cmPingRetry"
-if %cmPingRetried% GEQ %cmPingRetry% goto writebad
 call:write "Ping failed, retried = %cmPingRetried%." 1
+if %cmPingRetried% GEQ %cmPingRetry% (
+    set cmPingRetried=
+    goto writebad
+)
 goto loop
 
 :writebad
@@ -453,11 +456,12 @@ goto loop
 set /a cmEwsRetried=%cmEwsStatus:~-1%
 set /a cmEwsRetried+=1
 set cmEwsStatus=b%cmEwsRetried%
+call:write "EWS seems down, retried = %cmEwsRetried%." 1
 if %cmEwsRetried% GEQ %cmEwsRetry% (
+    set cmEwsRetried=
     call:write "%cmEwsTrnB%" y
     set cmEwsStatus=b
 )
-call:write "EWS seems down, retried = %cmEwsRetried%." 1
 goto:eof
 
 :write
