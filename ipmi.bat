@@ -199,9 +199,11 @@ ipmitool -I lanplus -U admin -P admin -H %hostpre%%*
 goto:eof
 
 :usage
+(
 echo;
 echo  IPMI script %_version%
 echo  https://github.com/lxvs/ipmi
+echo;
 echo;
 echo  Usage:
 echo;
@@ -229,7 +231,6 @@ echo                                                          Trying times befor
 echo    ipmi ^<IP^> fan                             ^(Need Porting^) Request current fan mode. 00: auto, 01: manual
 echo    ipmi ^<IP^> fan 0^|auto                      ^(Need Porting^) Set fan mode to auto
 echo    ipmi ^<IP^> fan ^<speed^>                     ^(Need Porting^) Set fan speed ^(1~100^)
-pause>NUL
 echo    ipmi [arg1 [arg2 [...]]]                  Get ipmitool help on specific parameter^(s^)
 echo;
 echo  Examples:
@@ -239,6 +240,9 @@ echo;
 echo    'ipmi 255 arg1 arg2 arg3' stands for:
 echo;
 echo    ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
+)> usage.tmp
+more usage.tmp
+del usage.tmp
 goto:eof
 
 :LFN
