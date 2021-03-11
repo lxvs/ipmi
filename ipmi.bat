@@ -265,6 +265,15 @@ echo;
 echo ipmi [arg1 [arg2 [...]]]
 echo     Get ipmitool help on specific parameter^(s^)
 echo;
+echo ^<IP^> can be 1~4 segment^(s^), but the number of segments of ^<IP^>
+echo and ^<defaultHostPrefix^> ^(set in the first lines of ipmi.bat^) must
+echo add up to great or equal than 4.
+echo;
+echo    ^<IP^>   ^<dHPrefix^>  OK?  Actual-IP
+echo        7  192.168.0   Yes  192.168.0.7
+echo      7.7  192.168.0   Yes  192.168.7.7
+echo  7.7.7.7  192.168.0   Yes  7.7.7.7
+echo        7  192         No   -
 echo;
 echo  Examples:
 echo;
