@@ -30,6 +30,7 @@ if "%hostpre%" EQU "notint" (
     goto:eof
 )
 goto exec
+
 :hostparse
 set /a host=%1 2>NUL || goto hostparsestart
 if "%host%" NEQ "%~1" (
@@ -184,6 +185,7 @@ if "%cmEwsRetryTmp%" NEQ "" if "%cmEwsRetryTmpPost%"=="%cmEwsRetryTmp%" (
     call:err Warning 840 "Parameter 'EWS retry' was designated but did not applied."
 )
 goto connectionMonitor
+
 :solargparse
 if "%solArg:~-4%"==".log" (
     call:SOL %1 %3
@@ -386,7 +388,7 @@ if /i "%TtlSeg:~0,3%"=="TTL" (
 call:write "ping: failed!" 2
 if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
-if /i "%cmCurrentStatus:~0,1%"=="b" goto trans
+if /i "%cmCurrentStatus:~0,1%"=="b" goto PingTrans
 if %cmPingRetry% GTR 0 (
     set cmCurrentStatus=b0
     call:write "Ping failed, retrying." 1
@@ -431,7 +433,7 @@ for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
 )
 goto:eof
 
-:trans
+:PingTrans
 set /a cmPingRetried=%cmCurrentStatus:~-1%
 set /a cmPingRetried+=1
 set cmCurrentStatus=b%cmPingRetried%
