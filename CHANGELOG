@@ -1,6 +1,7 @@
 2021-03-12  lxvs
 
 	* NEW: custom BMC username/password and interface support.
+	* GITIGNORE: add usage.tmp.
 
 2021-03-11  lxvs
 
