@@ -1,21 +1,19 @@
 @echo off
 setlocal
+
 REM --- Default values are set here
 set "defaultHostPrefix=100.2.76"
+set "bmcUsername=admin"
+set "bmcPassword=admin"
+set "interface=lanplus"
 set /a cmPingRetry=3
 set /a cmEwsRetry=2
 set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
+
 set "_version=4.24.1"
 title IPMI %_version%
-if "%cmColorEnabled%"=="1" (
-    set "clrSuf=[0m"
-    set "errPre=[101;93m"
-) else (
-    set clrSuf=
-    set errPre=
-)
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
 set cmPingRetryTmp=
@@ -23,6 +21,16 @@ echo %1 | findstr /i "? help usage" >NUL && goto usage
 if /i "%~1"=="-v" goto version
 if /i "%~1"=="/v" goto version
 echo %1 | findstr /i "version" >NUL && goto version
+if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set paraU=
+if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set paraP=
+if "%interface%" NEQ "" (set "paraI= -I %interface%") else set paraI=
+if "%cmColorEnabled%"=="1" (
+    set "clrSuf=[0m"
+    set "errPre=[101;93m"
+) else (
+    set clrSuf=
+    set errPre=
+)
 call:hostparse %1 hostpre
 if "%hostpre%" EQU "crierr" goto:eof
 if "%hostpre%" EQU "notint" (
@@ -115,28 +123,28 @@ if /i "%~2"=="sol" (
 )
 if /i "%~2"=="fan" (
     if "%~3"=="" (
-        ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2f
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2f
         goto:eof
     )
     if "%~3"=="0" (
-        ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 0
         goto:eof
     )
     if "%~3"=="auto" (
-        ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 0
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 0
         goto:eof
     )
-    ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2e 1
-    ipmitool -I lanplus -U admin -P admin -H %hostExec% raw 0x3c 0x2c 0xff %3
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 1
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2c 0xff %3
     goto:eof
 )
 if /i "%~2"=="bios" (
-    ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
     goto:eof
 )
 if /i "%~2"=="br" (
-    ipmitool -I lanplus -U admin -P admin -H %hostExec% chassis bootdev bios
-    ipmitool -I lanplus -U admin -P admin -H %hostExec% power reset
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% power reset
     goto:eof
 )
 goto default
@@ -197,7 +205,7 @@ if "%solArg:~-4%"==".txt" (
 )
 
 :default
-ipmitool -I lanplus -U admin -P admin -H %hostpre%%*
+ipmitool%paraI%%paraU%%paraP% -H %hostpre%%*
 goto:eof
 
 :usage
@@ -277,14 +285,16 @@ echo      7.7  192.168.0   Yes  192.168.7.7
 echo  7.7.7.7  192.168.0   Yes  7.7.7.7
 echo        7  192         No   -
 echo;
-echo  Examples:
+echo BMC username/password can also be set there. Default: admin/admin.
+echo;
+echo Examples:
 echo;
 echo If defaultHostPrefix was set to '100.2.76.', then
 echo;
 echo ipmi 255 arg1 arg2 arg3
 echo     stands for:
 echo;
-echo ipmitool -I lanplus -U admin -P admin -H 100.2.76.255 arg1 arg2 arg3
+echo ipmitool%paraI%%paraU%%paraP% -H 100.2.76.255 arg1 arg2 arg3
 )> usage.tmp
 more usage.tmp
 del usage.tmp
@@ -301,7 +311,7 @@ goto:eof
 title %hostexec% SOL
 echo;
 echo ^> Deactivating previous SOL...
-ipmitool -I lanplus -U admin -P admin -H %hostExec% sol deactivate
+ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate
 if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
 type nul> %solLfn% || (
@@ -312,7 +322,7 @@ echo;
 echo ^> Log file will be at %solLfn%
 echo ^> Activate SOL...
 explorer /select,"%solLfn%"
-(ipmitool -I lanplus -U admin -P admin -H %hostExec% sol activate)> %solLfn%
+(ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate)> %solLfn%
 goto:eof
 
 :err
@@ -337,8 +347,8 @@ set "cmEwsOrgB=BMC web is not ready."
 set "cmEwsTrnG=BMC web is accessible."
 set "cmEwsTrnB=BMC web is down."
 set "cmPingB=Ping got no response."
-set "cmPingOrgG=Ping is OK." REM CM legacy only
-set "cmPingTrnG=Ping is OK." REM CM legacy only
+set "cmPingOrgG=Ping is OK."
+set "cmPingTrnG=Ping is OK."
 call:write "------------------------------------------------------"
 call:write "Host:        %hostExec%"
 call:write "Ping retry:  %cmPingRetry%"

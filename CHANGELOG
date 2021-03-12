@@ -1,3 +1,7 @@
+2021-03-12  lxvs
+
+	* NEW: custom BMC username/password and interface support.
+
 2021-03-11  lxvs
 
 	* IMPROVEMENT: rename label 'trans' to 'PingTrans'.
