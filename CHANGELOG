@@ -1,3 +1,7 @@
+4.25.1 - 2021-03-19  lxvs
+
+	* IMPROVEMENT: change ipmi br command from reset to off and on.
+
 4.25.0 - 2021-03-12  lxvs
 
 	* NEW: custom BMC username/password and interface support.

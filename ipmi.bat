@@ -12,7 +12,7 @@ set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
 
-set "_version=4.25.0"
+set "_version=4.25.1"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -144,7 +144,8 @@ if /i "%~2"=="bios" (
 )
 if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
-    ipmitool%paraI%%paraU%%paraP% -H %hostExec% power reset
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power off
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power on
     goto:eof
 )
 goto default
