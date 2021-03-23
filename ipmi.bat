@@ -12,7 +12,7 @@ set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
 
-set "_version=4.25.1"
+set "_version=4.25.2"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -297,7 +297,7 @@ echo     stands for:
 echo;
 echo ipmitool%paraI%%paraU%%paraP% -H 100.2.76.255 arg1 arg2 arg3
 )> usage.tmp
-more usage.tmp
+more /e usage.tmp
 del usage.tmp
 goto:eof
 
