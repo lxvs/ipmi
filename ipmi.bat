@@ -12,7 +12,7 @@ set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
 
-set "_version=4.25.2"
+set "_version=4.26.0"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -142,6 +142,42 @@ if /i "%~2"=="bios" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
     goto:eof
 )
+if /i "%~2"=="pxe" (
+    set efi=
+    if /i "%~3"=="efi" set efi=1
+    if /i "%~3"=="uefi" set efi=1
+    if /i "%~3"=="efiboot" set efi=1
+    if defined efi (
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev pxe options=efiboot
+    ) else (
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev pxe
+    )
+    goto:eof
+)
+if /i "%~2"=="disk" (
+    set efi=
+    if /i "%~3"=="efi" set efi=1
+    if /i "%~3"=="uefi" set efi=1
+    if /i "%~3"=="efiboot" set efi=1
+    if defined efi (
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev disk options=efiboot
+    ) else (
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev disk
+    )
+    goto:eof
+)
+if /i "%~2"=="cdrom" (
+    set efi=
+    if /i "%~3"=="efi" set efi=1
+    if /i "%~3"=="uefi" set efi=1
+    if /i "%~3"=="efiboot" set efi=1
+    if defined efi (
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev cdrom options=efiboot
+    ) else (
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev cdrom
+    )
+    goto:eof
+)
 if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power off
@@ -238,7 +274,19 @@ echo ipmi ^<IP^> [t]
 echo     Ping
 echo;
 echo ipmi ^<IP^> BIOS
-echo     Force to enter BIOS setup on next boot
+echo     Force to enter BIOS setup on next boot only
+echo;
+echo ipmi ^<IP^> PXE [efi]
+echo     Force PXE boot for next one only
+echo     If 'efi' is specified, append options=efiboot
+echo;
+echo ipmi ^<IP^> disk [efi]
+echo     Force to boot from disk for next boot only
+echo     If 'efi' is specified, append options=efiboot
+echo;
+echo ipmi ^<IP^> cdrom [efi]
+echo     Force to boot from cdrom for next boot only
+echo     If 'efi' is specified, append options=efiboot
 echo;
 echo ipmi ^<IP^> BR
 echo     Force to enter BIOS setup on next boot and reset immediately

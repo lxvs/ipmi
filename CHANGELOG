@@ -1,3 +1,7 @@
+4.26.0 - 2021-03-23  lxvs
+
+	* NEW: ipmi pxe/disk/cdrom commands as well as efi option.
+
 4.25.2 - 2021-03-23  lxvs
 
 	* BUGFIX: cannot display usage in some environments.
