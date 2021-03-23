@@ -12,7 +12,7 @@ set /a cmLogLvl=2
 set /a cmColorEnabled=1
 REM --- Default Values end
 
-set "_version=4.26.0"
+set "_version=4.27.0"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -24,6 +24,28 @@ echo %1 | findstr /i "version" >NUL && goto version
 if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set paraU=
 if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set paraP=
 if "%interface%" NEQ "" (set "paraI= -I %interface%") else set paraI=
+
+:paraParse
+echo %1 | findstr "\-I \-U \-P" >NUL && (
+    if "%~1"=="-I" (
+        if "%~2" NEQ "" set "paraI= -I %~2"
+        shift /1
+        shift /1
+        goto paraParse
+    ) else if "%~1"=="-U" (
+        if "%~2" NEQ "" set "paraU= -U %~2"
+        shift /1
+        shift /1
+        goto paraParse
+    ) else if "%~1"=="-P" (
+        if "%~2" NEQ "" set "paraP= -P %~2"
+        shift /1
+        shift /1
+        goto paraParse
+    ) else goto breakParaParse
+)
+
+:breakParaParse
 if "%cmColorEnabled%"=="1" (
     set "clrSuf=[0m"
     set "errPre=[101;93m"
@@ -32,8 +54,8 @@ if "%cmColorEnabled%"=="1" (
     set errPre=
 )
 call:hostparse %1 hostpre
-if "%hostpre%" EQU "crierr" goto:eof
-if "%hostpre%" EQU "notint" (
+if "%hostpre%"=="crierr" goto:eof
+if "%hostpre%"=="notint" (
     ipmitool %*
     goto:eof
 )
@@ -424,14 +446,14 @@ if /i "%TtlSeg:~0,3%"=="TTL" (
         ping localhost -n 2 >NUL
         goto loop
     )
-    if /i "%cmCurrentStatus%" EQU "b" (
+    if /i "%cmCurrentStatus%"=="b" (
         set cmCurrentStatus=g
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status turns good." 8
         if "%cmver%"=="1" (call:gethttpcode) else call:write "%cmPingTrnG%" g
         ping localhost -n 2 >NUL
         goto loop
     )
-    if /i "%cmCurrentStatus:~0,1%" EQU "b" (
+    if /i "%cmCurrentStatus:~0,1%"=="b" (
         set cmCurrentStatus=g
         call:write "Just jitters, ignored." 1
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because of jitters." 8
