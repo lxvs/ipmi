@@ -1,3 +1,8 @@
+4.27.1 - 2021-03-24  lxvs
+
+	* IMPROVEMENT: add loading prompt prior to help info.
+	* IMPROVEMENT: add 2 empty lines at the end of help info.
+
 4.27.0 - 2021-03-23  lxvs
 
 	* NEW: specify -I/-U/-P parameters in command.
