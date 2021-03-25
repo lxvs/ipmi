@@ -10,9 +10,10 @@ set /a cmPingRetry=3
 set /a cmEwsRetry=2
 set /a cmLogLvl=2
 set /a cmColorEnabled=1
+set /a cmEwsTimeOut=1
 REM --- Default Values end
 
-set "_version=4.27.1"
+set "_version=4.27.2"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -480,7 +481,7 @@ if %cmPingRetry% GTR 0 (
 ) else goto writebad
 
 :gethttpcode
-for /f %%i in ('curl -so /dev/null -Iw %%{http_code} %hostExec%') do (
+for /f %%i in ('curl -w %cmEwsTimeOut% -so /dev/null -Iw %%{http_code} %hostExec%') do (
     call:write "DEBUG: HTTP code updated:   %cmLastHttpCode% to %%i" 8
     call:write "DEBUG: BMC web status:      %cmEwsStatus%" 8
     call:write "HTTP code: %%i" 2
@@ -618,5 +619,5 @@ goto:eof
 echo;
 echo version: %_version%
 set /p=latest:  <NUL
-curl "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION" 2>NUL || echo failed to get.
+curl -m 5 "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION" 2>NUL || echo Timed out getting latest version. Please try again later.
 goto:eof
