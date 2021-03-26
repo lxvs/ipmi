@@ -13,7 +13,7 @@ set /a cmColorEnabled=1
 set /a cmEwsTimeOut=1
 REM --- Default Values end
 
-set "_version=4.28.0"
+set "_version=4.28.1"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -286,6 +286,7 @@ ipmitool%paraI%%paraU%%paraP% -H %hostpre%%*
 goto:eof
 
 :usage
+set "usageTempFile=%TEMP%\ipmi-usage.tmp"
 echo Loading help ...
 (
 echo;
@@ -390,9 +391,9 @@ echo;
 echo ipmitool%paraI%%paraU%%paraP% -H 100.2.76.255 arg1 arg2 arg3
 echo;
 echo;
-)> usage.tmp
-more /e usage.tmp
-del usage.tmp
+)> %usageTempFile%
+more /e %usageTempFile%
+del %usageTempFile%
 goto:eof
 
 :LFN

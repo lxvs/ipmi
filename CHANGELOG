@@ -1,3 +1,7 @@
+4.28.1 - 2021-03-26  lxvs
+
+	* IMPROVEMENT: move generated usage.tmp to Windows temp folder
+
 4.28.0 - 2021-03-26  lxvs
 
 	* NEW: ipmi loop - send ipmitool command repeatedly
