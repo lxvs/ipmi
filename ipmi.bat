@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal enableExtensions disableDelayedExpansion
 
 REM --- Default values are set here
 set "defaultHostPrefix=100.2.76"
@@ -13,7 +13,7 @@ set /a cmColorEnabled=1
 set /a cmEwsTimeOut=1
 REM --- Default Values end
 
-set "_version=4.27.2"
+set "_version=4.28.0"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -207,7 +207,24 @@ if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power on
     goto:eof
 )
+if /i "%~2"=="loop" if not "%~3"=="" (
+    shift
+    shift
+    set loopArgs=
+    goto loopCmdPre
+)
 goto default
+
+:loopCmdPre
+if "%~1"=="" goto loopCmd
+set loopArgs=%loopArgs% %1
+shift
+goto loopCmdPre
+
+:loopCmd
+ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
+ping localhost -n 2 -w 500 >nul 2>&1
+goto loopCmd
 
 :preCmParse
 if /i "%~3"=="" goto postCmParse
@@ -278,8 +295,11 @@ echo;
 echo;
 echo Usage:
 echo;
-echo ipmi ^<IP^> arg1 [arg2 [...]]
-echo     Send IPMITool commands
+echo ipmi ^<IP^> ^<arg1^> [^<arg2^> [...]]
+echo     Send IPMI commands
+echo;
+echo ipmi ^<IP^> loop ^<arg1^> [^<arg2^> [...]]
+echo     Send IPMI commands repeatedly with an interval of about 1 second.
 echo;
 echo ipmi version ^| -v ^| /v
 echo     Get current and latest version
