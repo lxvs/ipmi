@@ -1,5 +1,5 @@
 @echo off
-setlocal enableExtensions disableDelayedExpansion
+setlocal enableExtensions enableDelayedExpansion
 
 REM --- Default values are set here
 set "defaultHostPrefix=100.2.76"
@@ -203,9 +203,11 @@ if /i "%~2"=="cdrom" (
 )
 if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
-    ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power off
+    if !errorlevel! NEQ 0 exit /b 2060
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power reset 2>NUL
+    if !errorlevel! EQU 0 exit /b 0
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power on
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="loop" if not "%~3"=="" (
     shift
