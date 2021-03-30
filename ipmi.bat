@@ -55,19 +55,16 @@ if "%cmColorEnabled%"=="1" (
     set errPre=
 )
 call:hostparse %1 hostpre
-if "%hostpre%"=="crierr" goto:eof
-if "%hostpre%"=="notint" (
+if %errorlevel% EQU 670 (
     ipmitool %*
-    goto:eof
+    exit /b !errorlevel!
 )
+if %errorlevel% NEQ 0 exit /b %errorlevel%
 goto exec
 
 :hostparse
 set /a host=%1 2>NUL || goto hostparsestart
-if "%host%" NEQ "%~1" (
-    set "%2=notint"
-    goto:eof
-)
+if "%host%" NEQ "%~1" exit /b 670
 REM integer without dot.
 :hostparsestart
 for /f "delims=. tokens=1-3" %%a in ("%defaultHostPrefix%") do (
@@ -86,43 +83,41 @@ for /f "delims=. tokens=1-4,*" %%a in ("%~1") do (
 :afterhostparse
 if defined sece (
     call:err Error 230 "IP input has more than 4 sections."
-    set "%2=crierr"
-    goto:eof
+    exit /b 230
 )
 if defined secd (
     set %2=
-    goto:eof
+    exit /b 0
 )
 if defined secc if defined prea (
     set %2=%prea%.
-    goto:eof
+    exit /b 0
 )
 if defined secb if defined preb (
     set %2=%prea%.%preb%.
-    goto:eof
+    exit /b 0
 )
 if defined seca if defined prec (
     set %2=%prea%.%preb%.%prec%.
-    goto:eof
+    exit /b 0
 )
 call:err Error 240 "Parsed IP has less than 4 sections." ^
          "Check either input or variable 'defaultHostPrefix'."
-set "%2=crierr"
-goto:eof
+exit /b 240
 
 :exec
 set hostExec=%hostpre%%1
 if "%~2"=="" (
     ping %hostExec% -n 2
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="t" if "%~3"=="" (
     ping -t %hostExec%
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="-t" if "%~3"=="" (
     ping -t %hostExec%
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="cm" if "%~3"=="" (
     set cmVer=0
@@ -136,7 +131,7 @@ if /i "%~2"=="c" (
 if /i "%~2"=="sol" (
     if "%~3"=="" (
         call:SOL %1
-        goto:eof
+        exit /b !errorlevel!
     )
     if "%~4"=="" (
         set solArg=%3
@@ -147,23 +142,23 @@ if /i "%~2"=="sol" (
 if /i "%~2"=="fan" (
     if "%~3"=="" (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2f
-        goto:eof
+        exit /b !errorlevel!
     )
     if "%~3"=="0" (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 0
-        goto:eof
+        exit /b !errorlevel!
     )
     if "%~3"=="auto" (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 0
-        goto:eof
+        exit /b !errorlevel!
     )
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 1
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2c 0xff %3
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="bios" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="pxe" (
     set efi=
@@ -175,7 +170,7 @@ if /i "%~2"=="pxe" (
     ) else (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev pxe
     )
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="disk" (
     set efi=
@@ -187,7 +182,7 @@ if /i "%~2"=="disk" (
     ) else (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev disk
     )
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="cdrom" (
     set efi=
@@ -199,7 +194,7 @@ if /i "%~2"=="cdrom" (
     ) else (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev cdrom
     )
-    goto:eof
+    exit /b !errorlevel!
 )
 if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
@@ -276,16 +271,16 @@ goto connectionMonitor
 :solargparse
 if "%solArg:~-4%"==".log" (
     call:SOL %1 %3
-    goto:eof
+    exit /b !errorlevel!
 )
 if "%solArg:~-4%"==".txt" (
     call:SOL %1 %3
-    goto:eof
+    exit /b !errorlevel!
 )
 
 :default
 ipmitool%paraI%%paraU%%paraP% -H %hostpre%%*
-goto:eof
+exit /b !errorlevel!
 
 :usage
 set "usageTempFile=%TEMP%\ipmi-usage.tmp"
@@ -396,14 +391,14 @@ echo;
 )> %usageTempFile%
 more /e %usageTempFile%
 del %usageTempFile%
-goto:eof
+exit /b !errorlevel!
 
 :LFN
 call:gettime lfnYear lfnMon lfnDay lfnHour lfnMin
 set "lfnWf=%cd%\SolLogs\%lfnYear%-%lfnMon%-%lfnDay%"
 if "%~3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
 set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
-goto:eof
+exit /b !errorlevel!
 
 :SOL
 title %hostexec% SOL
@@ -414,14 +409,14 @@ if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
 type nul> %solLfn% || (
     call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator."
-    goto:eof
+    exit /b !errorlevel!
 )
 echo;
 echo ^> Log file will be at %solLfn%
 echo ^> Activate SOL...
 explorer /select,"%solLfn%"
 (ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate)> %solLfn%
-goto:eof
+exit /b !errorlevel!
 
 :err
 echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
@@ -431,7 +426,7 @@ if "%~3" NEQ "" (
     echo %errPre%-^> %~3%clrSuf%
     goto errshift
 )
-goto:eof
+exit /b %2
 
 :connectionMonitor
 title %hostExec%
@@ -519,12 +514,12 @@ for /f %%i in ('curl -w %cmEwsTimeOut% -so /dev/null -Iw %%{http_code} %hostExec
         ) else if /i "%cmEwsStatus%" NEQ "b" (
             if /i "%cmEwsStatus:~0,1%"=="b" (
                 call:EwsTrans
-                goto:eof
+                exit /b !errorlevel!
             )
             if %cmEwsRetry% GTR 0 (
                 set cmEwsStatus=b0
                 call:write "EWS seems down, retrying." 1
-                goto:eof
+                exit /b !errorlevel!
             ) else (
                 call:write "%cmEwsTrnB%" y
                 set cmEwsStatus=b
@@ -539,7 +534,7 @@ for /f %%i in ('curl -w %cmEwsTimeOut% -so /dev/null -Iw %%{http_code} %hostExec
         set cmEwsStatus=g
     )
 )
-goto:eof
+exit /b !errorlevel!
 
 :PingTrans
 set /a cmPingRetried=%cmCurrentStatus:~-1%
@@ -570,7 +565,7 @@ if %cmEwsRetried% GEQ %cmEwsRetry% (
     call:write "%cmEwsTrnB%" y
     set cmEwsStatus=b
 )
-goto:eof
+exit /b !errorlevel!
 
 :write
 REM %1:message
@@ -614,33 +609,32 @@ if /i "%cmClr%"=="c" (
     goto cmgo
 )
 :cmgo
-if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
+if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
 call:gettime cmyear cmMon cmDay cmHour cmMin cmSec
 set "cmTimeStamp=%cmyear%-%cmmon%-%cmday% %cmhour%:%cmmin%:%cmsec%"
 set "cmLogMsg=%~1"
-if %cmMsgLvl%==0 echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
-if %cmMsgLvl% GEQ %cmLogLvl% goto:eof
+if %cmMsgLvl% EQU 0 echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
+if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
 if not exist "%cmWf%" md "%cmWf%"
-if %cmLogLvl% LEQ 0 goto:eof
-if %cmMsgLvl%==0 (echo %cmTimeStamp% %cmLogMsg%)>> "%cmWf%\%hostExec%.log"
-if %cmLogLvl% LEQ 1 goto:eof
+if %cmMsgLvl% EQU 0 (echo %cmTimeStamp% %cmLogMsg%)>>"%cmWf%\%hostExec%.log"
+if %cmLogLvl% LEQ 1 exit /b 0
 if %cmMsgLvl% LSS %cmLogLvl% (echo %cmTimeStamp% %cmLogMsg%)>> "%cmWf%\%hostExec%.verbose.log"
-goto:eof
+exit /b 0
 
 :gettime
 for /f "tokens=1-6 usebackq delims=_" %%a in (`powershell -command "&{Get-Date -format 'yyyy_MM_dd_HH_mm_ss'}"`) do (
-    if "%1" NEQ "" set "%1=%%a" else goto:eof
-    if "%2" NEQ "" set "%2=%%b" else goto:eof
-    if "%3" NEQ "" set "%3=%%c" else goto:eof
-    if "%4" NEQ "" set "%4=%%d" else goto:eof
-    if "%5" NEQ "" set "%5=%%e" else goto:eof
-    if "%6" NEQ "" set "%6=%%f" else goto:eof
+    if "%1" NEQ "" set "%1=%%a" else exit /b !errorlevel!
+    if "%2" NEQ "" set "%2=%%b" else exit /b !errorlevel!
+    if "%3" NEQ "" set "%3=%%c" else exit /b !errorlevel!
+    if "%4" NEQ "" set "%4=%%d" else exit /b !errorlevel!
+    if "%5" NEQ "" set "%5=%%e" else exit /b !errorlevel!
+    if "%6" NEQ "" set "%6=%%f" else exit /b !errorlevel!
 )
-goto:eof
+exit /b !errorlevel!
 
 :version
 echo;
 echo version: %_version%
 set /p=latest:  <NUL
 curl -m 5 "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION" 2>NUL || echo Timed out getting latest version. Please try again later.
-goto:eof
+exit /b !errorlevel!
