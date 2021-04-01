@@ -13,7 +13,7 @@ set /a cmColorEnabled=1
 set /a cmEwsTimeOut=1
 REM --- Default Values end
 
-set "_version=4.28.2"
+set "_version=4.28.3"
 title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
@@ -57,9 +57,9 @@ if "%cmColorEnabled%"=="1" (
 call:hostparse %1 hostpre
 if %errorlevel% EQU 670 (
     ipmitool %*
-    exit /b !errorlevel!
+    exit /b
 )
-if %errorlevel% NEQ 0 exit /b %errorlevel%
+if %errorlevel% NEQ 0 exit /b
 goto exec
 
 :hostparse
@@ -109,15 +109,15 @@ exit /b 240
 set hostExec=%hostpre%%1
 if "%~2"=="" (
     ping %hostExec% -n 2
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="t" if "%~3"=="" (
     ping -t %hostExec%
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="-t" if "%~3"=="" (
     ping -t %hostExec%
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="cm" if "%~3"=="" (
     set cmVer=0
@@ -131,7 +131,7 @@ if /i "%~2"=="c" (
 if /i "%~2"=="sol" (
     if "%~3"=="" (
         call:SOL %1
-        exit /b !errorlevel!
+        exit /b
     )
     if "%~4"=="" (
         set solArg=%3
@@ -142,23 +142,23 @@ if /i "%~2"=="sol" (
 if /i "%~2"=="fan" (
     if "%~3"=="" (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2f
-        exit /b !errorlevel!
+        exit /b
     )
     if "%~3"=="0" (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 0
-        exit /b !errorlevel!
+        exit /b
     )
     if "%~3"=="auto" (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 0
-        exit /b !errorlevel!
+        exit /b
     )
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2e 1
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% raw 0x3c 0x2c 0xff %3
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="bios" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="pxe" (
     set efi=
@@ -170,7 +170,7 @@ if /i "%~2"=="pxe" (
     ) else (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev pxe
     )
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="disk" (
     set efi=
@@ -182,7 +182,7 @@ if /i "%~2"=="disk" (
     ) else (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev disk
     )
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="cdrom" (
     set efi=
@@ -194,15 +194,15 @@ if /i "%~2"=="cdrom" (
     ) else (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev cdrom
     )
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
     if !errorlevel! NEQ 0 exit /b 2060
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power reset 2>NUL
-    if !errorlevel! EQU 0 exit /b 0
+    if !errorlevel! EQU 0 exit /b
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power on
-    exit /b !errorlevel!
+    exit /b
 )
 if /i "%~2"=="loop" if not "%~3"=="" (
     shift
@@ -271,16 +271,16 @@ goto connectionMonitor
 :solargparse
 if "%solArg:~-4%"==".log" (
     call:SOL %1 %3
-    exit /b !errorlevel!
+    exit /b
 )
 if "%solArg:~-4%"==".txt" (
     call:SOL %1 %3
-    exit /b !errorlevel!
+    exit /b
 )
 
 :default
 ipmitool%paraI%%paraU%%paraP% -H %hostpre%%*
-exit /b !errorlevel!
+exit /b
 
 :usage
 set "usageTempFile=%TEMP%\ipmi-usage.tmp"
@@ -391,14 +391,14 @@ echo;
 )> %usageTempFile%
 more /e %usageTempFile%
 del %usageTempFile%
-exit /b !errorlevel!
+exit /b
 
 :LFN
 call:gettime lfnYear lfnMon lfnDay lfnHour lfnMin
 set "lfnWf=%cd%\SolLogs\%lfnYear%-%lfnMon%-%lfnDay%"
 if "%~3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
 set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
-exit /b !errorlevel!
+exit /b
 
 :SOL
 title %hostexec% SOL
@@ -409,14 +409,14 @@ if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
 type nul> %solLfn% || (
     call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator."
-    exit /b !errorlevel!
+    exit /b
 )
 echo;
 echo ^> Log file will be at %solLfn%
 echo ^> Activate SOL...
 explorer /select,"%solLfn%"
 (ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate)> %solLfn%
-exit /b !errorlevel!
+exit /b
 
 :err
 echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
@@ -514,12 +514,12 @@ for /f %%i in ('curl -w %cmEwsTimeOut% -so /dev/null -Iw %%{http_code} %hostExec
         ) else if /i "%cmEwsStatus%" NEQ "b" (
             if /i "%cmEwsStatus:~0,1%"=="b" (
                 call:EwsTrans
-                exit /b !errorlevel!
+                exit /b
             )
             if %cmEwsRetry% GTR 0 (
                 set cmEwsStatus=b0
                 call:write "EWS seems down, retrying." 1
-                exit /b !errorlevel!
+                exit /b
             ) else (
                 call:write "%cmEwsTrnB%" y
                 set cmEwsStatus=b
@@ -534,7 +534,7 @@ for /f %%i in ('curl -w %cmEwsTimeOut% -so /dev/null -Iw %%{http_code} %hostExec
         set cmEwsStatus=g
     )
 )
-exit /b !errorlevel!
+exit /b
 
 :PingTrans
 set /a cmPingRetried=%cmCurrentStatus:~-1%
@@ -565,7 +565,7 @@ if %cmEwsRetried% GEQ %cmEwsRetry% (
     call:write "%cmEwsTrnB%" y
     set cmEwsStatus=b
 )
-exit /b !errorlevel!
+exit /b
 
 :write
 REM %1:message
@@ -623,18 +623,18 @@ exit /b 0
 
 :gettime
 for /f "tokens=1-6 usebackq delims=_" %%a in (`powershell -command "&{Get-Date -format 'yyyy_MM_dd_HH_mm_ss'}"`) do (
-    if "%1" NEQ "" set "%1=%%a" else exit /b !errorlevel!
-    if "%2" NEQ "" set "%2=%%b" else exit /b !errorlevel!
-    if "%3" NEQ "" set "%3=%%c" else exit /b !errorlevel!
-    if "%4" NEQ "" set "%4=%%d" else exit /b !errorlevel!
-    if "%5" NEQ "" set "%5=%%e" else exit /b !errorlevel!
-    if "%6" NEQ "" set "%6=%%f" else exit /b !errorlevel!
+    if "%1" NEQ "" set "%1=%%a" else exit /b
+    if "%2" NEQ "" set "%2=%%b" else exit /b
+    if "%3" NEQ "" set "%3=%%c" else exit /b
+    if "%4" NEQ "" set "%4=%%d" else exit /b
+    if "%5" NEQ "" set "%5=%%e" else exit /b
+    if "%6" NEQ "" set "%6=%%f" else exit /b
 )
-exit /b !errorlevel!
+exit /b
 
 :version
 echo;
 echo version: %_version%
 set /p=latest:  <NUL
 curl -m 5 "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION" 2>NUL || echo Timed out getting latest version. Please try again later.
-exit /b !errorlevel!
+exit /b
