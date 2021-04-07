@@ -49,7 +49,7 @@ if "%interface%" NEQ "" (set "paraI= -I %interface%") else set paraI=
 :breakParaParse
 if "%cmColorEnabled%"=="1" (
     @set "clrSuf=[0m"
-    @set "errPre=[101;93m"
+    @set "errPre=[91m"
 ) else (
     set clrSuf=
     set errPre=
@@ -404,18 +404,21 @@ exit /b
 @title %hostexec% SOL
 @echo;
 @echo ^> Deactivating previous SOL...
-ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate
+ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate 2>NUL
 if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
-type nul> %solLfn% || (
-    call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator."
+@type nul>%solLfn% || (
+    call:err Fatal 510 "SOL: Cannot create log file" "please consider to change a directory or run as administrator."
     exit /b
 )
 @echo;
-@echo ^> Log file will be at %solLfn%
-@echo ^> Activate SOL...
+@echo ^> Activate SOL, saving to %SolLfn%
 explorer /select,"%solLfn%"
-(ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate)> %solLfn%
+(ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate) 1>%solLfn% 2>&1
+if %errorlevel% NEQ 0 (
+    call:err fatal 4190 "SOL: failed to activate SOL" "See %SolLfn% for details"
+    exit /b
+)
 exit /b
 
 :err
@@ -616,9 +619,9 @@ set "cmLogMsg=%~1"
 if %cmMsgLvl% EQU 0 echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
 if not exist "%cmWf%" md "%cmWf%"
-if %cmMsgLvl% EQU 0 (echo %cmTimeStamp% %cmLogMsg%)>>"%cmWf%\%hostExec%.log"
+if %cmMsgLvl% EQU 0 (echo %cmTimeStamp% %cmLogMsg%) 1>>"%cmWf%\%hostExec%.log"
 if %cmLogLvl% LEQ 1 exit /b 0
-if %cmMsgLvl% LSS %cmLogLvl% (echo %cmTimeStamp% %cmLogMsg%)>> "%cmWf%\%hostExec%.verbose.log"
+if %cmMsgLvl% LSS %cmLogLvl% (echo %cmTimeStamp% %cmLogMsg%) 1>>"%cmWf%\%hostExec%.verbose.log"
 exit /b 0
 
 :gettime
