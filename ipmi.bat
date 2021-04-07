@@ -1,7 +1,7 @@
 @echo off
-setlocal enableExtensions enableDelayedExpansion
+@setlocal enableExtensions enableDelayedExpansion
 
-REM --- Default values are set here
+@REM --- Default values are set here
 set "defaultHostPrefix=100.2.76"
 set "bmcUsername=admin"
 set "bmcPassword=admin"
@@ -11,23 +11,23 @@ set /a cmEwsRetry=2
 set /a cmLogLvl=2
 set /a cmColorEnabled=1
 set /a cmEwsTimeOut=1
-REM --- Default Values end
+@REM --- Default Values end
 
 set "_version=4.28.3"
-title IPMI %_version%
+@title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
 set cmPingRetryTmp=
-echo %1 | findstr /i "? help usage" >NUL && goto usage
+@echo %1 | findstr /i "? help usage" >NUL && goto usage
 if /i "%~1"=="-v" goto version
 if /i "%~1"=="/v" goto version
-echo %1 | findstr /i "version" >NUL && goto version
+@echo %1 | findstr /i "version" >NUL && goto version
 if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set paraU=
 if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set paraP=
 if "%interface%" NEQ "" (set "paraI= -I %interface%") else set paraI=
 
 :paraParse
-echo %1 | findstr "\-I \-U \-P" >NUL && (
+@echo %1 | findstr "\-I \-U \-P" >NUL && (
     if "%~1"=="-I" (
         if "%~2" NEQ "" set "paraI= -I %~2"
         shift /1
@@ -48,8 +48,8 @@ echo %1 | findstr "\-I \-U \-P" >NUL && (
 
 :breakParaParse
 if "%cmColorEnabled%"=="1" (
-    set "clrSuf=[0m"
-    set "errPre=[101;93m"
+    @set "clrSuf=[0m"
+    @set "errPre=[101;93m"
 ) else (
     set clrSuf=
     set errPre=
@@ -65,7 +65,7 @@ goto exec
 :hostparse
 set /a host=%1 2>NUL || goto hostparsestart
 if "%host%" NEQ "%~1" exit /b 670
-REM integer without dot.
+@REM integer without dot.
 :hostparsestart
 for /f "delims=. tokens=1-3" %%a in ("%defaultHostPrefix%") do (
     if "%%a" NEQ "" set "prea=%%a" else goto hostparsemid
@@ -284,8 +284,8 @@ exit /b
 
 :usage
 set "usageTempFile=%TEMP%\ipmi-usage.tmp"
-echo Loading help ...
-(
+@echo Loading help ...
+@(
 echo;
 echo IPMI script %_version%
 echo https://github.com/lxvs/ipmi
@@ -401,9 +401,9 @@ set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
 exit /b
 
 :SOL
-title %hostexec% SOL
-echo;
-echo ^> Deactivating previous SOL...
+@title %hostexec% SOL
+@echo;
+@echo ^> Deactivating previous SOL...
 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate
 if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
@@ -411,15 +411,15 @@ type nul> %solLfn% || (
     call:err Fatal 510 "Cannot create log file" "please consider to change a directory or run as administrator."
     exit /b
 )
-echo;
-echo ^> Log file will be at %solLfn%
-echo ^> Activate SOL...
+@echo;
+@echo ^> Log file will be at %solLfn%
+@echo ^> Activate SOL...
 explorer /select,"%solLfn%"
 (ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate)> %solLfn%
 exit /b
 
 :err
-echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
+@echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
 :errshift
 shift /3
 if "%~3" NEQ "" (
@@ -429,7 +429,7 @@ if "%~3" NEQ "" (
 exit /b %2
 
 :connectionMonitor
-title %hostExec%
+@title %hostExec%
 set "cmWf=%cd%\ConnectionLogs"
 if not exist "%cmWf%" md "%cmWf%"
 set cmCurrentStatus=
@@ -568,9 +568,9 @@ if %cmEwsRetried% GEQ %cmEwsRetry% (
 exit /b
 
 :write
-REM %1:message
-REM %2:color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
-REM    -OR- MsgLvl (0-9)
+@REM %1:message
+@REM %2:color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
+@REM    -OR- MsgLvl (0-9)
 set cmClr=%2
 set /a cmMsgLvl=cmClr
 set cmPre=
@@ -579,33 +579,33 @@ if %cmColorEnabled% NEQ 1 goto cmgo
 if "%cmClr%"=="" goto cmgo
 if "%cmClr%"=="%cmMsgLvl%" goto cmgo
 if /i "%cmClr%"=="r" (
-    set "cmPre=[91m"
-    set "cmSuf=[0m"
+    @set "cmPre=[91m"
+    @set "cmSuf=[0m"
     goto cmgo
 )
 if /i "%cmClr%"=="g" (
-    set "cmPre=[92m"
-    set "cmSuf=[0m"
+    @set "cmPre=[92m"
+    @set "cmSuf=[0m"
     goto cmgo
 )
 if /i "%cmClr%"=="y" (
-    set "cmPre=[93m"
-    set "cmSuf=[0m"
+    @set "cmPre=[93m"
+    @set "cmSuf=[0m"
     goto cmgo
 )
 if /i "%cmClr%"=="b" (
-    set "cmPre=[94m"
-    set "cmSuf=[0m"
+    @set "cmPre=[94m"
+    @set "cmSuf=[0m"
     goto cmgo
 )
 if /i "%cmClr%"=="m" (
-    set "cmPre=[95m"
-    set "cmSuf=[0m"
+    @set "cmPre=[95m"
+    @set "cmSuf=[0m"
     goto cmgo
 )
 if /i "%cmClr%"=="c" (
-    set "cmPre=[96m"
-    set "cmSuf=[0m"
+    @set "cmPre=[96m"
+    @set "cmSuf=[0m"
     goto cmgo
 )
 :cmgo
@@ -633,8 +633,8 @@ for /f "tokens=1-6 usebackq delims=_" %%a in (`powershell -command "&{Get-Date -
 exit /b
 
 :version
-echo;
-echo version: %_version%
+@echo;
+@echo version: %_version%
 set /p=latest:  <NUL
 curl -m 5 "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION" 2>NUL || echo Timed out getting latest version. Please try again later.
 exit /b
