@@ -1,3 +1,9 @@
+4.28.4 - 2021-04-07  lxvs
+
+	* IMPROVEMENT: an easier-to-read color of error prompts
+	* IMPROVEMENT: add @ before REM/SETLOCAL/ECHO/TITLE/color-settings
+	* IMPROVEMENT: improve SOL function
+
 4.28.3 - 2021-04-01  lxvs
 
 	* IMPROVEMENT: remove unnecessary errorlevel arguments of exit

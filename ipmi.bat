@@ -13,7 +13,7 @@ set /a cmColorEnabled=1
 set /a cmEwsTimeOut=1
 @REM --- Default Values end
 
-set "_version=4.28.3"
+set "_version=4.28.4"
 @title IPMI %_version%
 if "%~1"=="" goto usage
 set cmLogLvlTmp=
