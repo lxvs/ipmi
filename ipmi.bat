@@ -2,22 +2,22 @@
 @setlocal enableExtensions enableDelayedExpansion
 
 @REM --- Default values are set here
-set "defaultHostPrefix=100.2.76"
-set "bmcUsername=admin"
-set "bmcPassword=admin"
-set "interface=lanplus"
-set /a cmPingRetry=3
-set /a cmEwsRetry=2
-set /a cmLogLvl=2
-set /a cmColorEnabled=1
-set /a cmEwsTimeOut=1
+@set "defaultHostPrefix=100.2.76"
+@set "bmcUsername=admin"
+@set "bmcPassword=admin"
+@set "interface=lanplus"
+@set /a cmPingRetry=3
+@set /a cmEwsRetry=2
+@set /a cmLogLvl=2
+@set /a cmColorEnabled=1
+@set /a cmEwsTimeOut=1
 @REM --- Default Values end
 
-set "_version=4.28.4"
+@set "_version=4.28.4"
 @title IPMI %_version%
 if "%~1"=="" goto usage
-set cmLogLvlTmp=
-set cmPingRetryTmp=
+@set cmLogLvlTmp=
+@set cmPingRetryTmp=
 @echo %1 | findstr /i "? help usage" >NUL && goto usage
 if /i "%~1"=="-v" goto version
 if /i "%~1"=="/v" goto version
@@ -423,7 +423,7 @@ del %usageTempFile%
 exit /b
 
 :LFN
-call:gettime lfnYear lfnMon lfnDay lfnHour lfnMin
+call:GetTime lfnYear lfnMon lfnDay lfnHour lfnMin
 set "lfnWf=%cd%\SolLogs\%lfnYear%-%lfnMon%-%lfnDay%"
 if "%~3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
 set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
@@ -455,7 +455,7 @@ exit /b
 :errshift
 shift /3
 if "%~3" NEQ "" (
-    echo %errPre%-^> %~3%clrSuf%
+    @echo %errPre%-^> %~3%clrSuf%
     goto errshift
 )
 exit /b %2
@@ -603,8 +603,8 @@ exit /b
 @REM %1:message
 @REM %2:color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
 @REM    -OR- MsgLvl (0-9)
-set cmClr=%2
-set /a cmMsgLvl=cmClr
+set "cmClr=%~2"
+set /a "cmMsgLvl=cmClr"
 set cmPre=
 set cmSuf=
 if %cmColorEnabled% NEQ 1 goto cmgo
@@ -642,10 +642,10 @@ if /i "%cmClr%"=="c" (
 )
 :cmgo
 if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
-call:gettime cmyear cmMon cmDay cmHour cmMin cmSec
+call:GetTime cmYear cmMon cmDay cmHour cmMin cmSec
 set "cmTimeStamp=%cmyear%-%cmmon%-%cmday% %cmhour%:%cmmin%:%cmsec%"
 set "cmLogMsg=%~1"
-if %cmMsgLvl% EQU 0 echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
+if %cmMsgLvl% EQU 0 @echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
 if not exist "%cmWf%" md "%cmWf%"
 if %cmMsgLvl% EQU 0 (echo %cmTimeStamp% %cmLogMsg%) 1>>"%cmWf%\%hostExec%.log"
@@ -653,7 +653,7 @@ if %cmLogLvl% LEQ 1 exit /b 0
 if %cmMsgLvl% LSS %cmLogLvl% (echo %cmTimeStamp% %cmLogMsg%) 1>>"%cmWf%\%hostExec%.verbose.log"
 exit /b 0
 
-:gettime
+:GetTime
 for /f "tokens=1-6 usebackq delims=_" %%a in (`powershell -command "&{Get-Date -format 'yyyy_MM_dd_HH_mm_ss'}"`) do (
     if "%1" NEQ "" set "%1=%%a" else exit /b
     if "%2" NEQ "" set "%2=%%b" else exit /b
