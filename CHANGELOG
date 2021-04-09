@@ -1,3 +1,12 @@
+4.29.0 - 2021-04-09  lxvs
+
+	* NEW: introduce MONITOR command, similar to LOOP, but only shows
+	       update instead of every output
+	* NEW: now MONITOR and LOOP command shows timestamp (controllable)
+	* IMPROVEMENT: make default options controllable by environment
+	               variables
+	* IMPROVEMENT: other minor ones
+
 4.28.4 - 2021-04-07  lxvs
 
 	* IMPROVEMENT: an easier-to-read color of error prompts
