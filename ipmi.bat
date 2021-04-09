@@ -2,16 +2,39 @@
 @setlocal enableExtensions enableDelayedExpansion
 
 @REM --- Default values are set here
+
 @set "defaultHostPrefix=100.2.76"
 @set "bmcUsername=admin"
 @set "bmcPassword=admin"
 @set "interface=lanplus"
+
+@set /a g_colorEnabled=1
+
 @set /a cmPingRetry=3
 @set /a cmEwsRetry=2
 @set /a cmLogLvl=2
 @set /a cmColorEnabled=1
 @set /a cmEwsTimeOut=1
+
 @REM --- Default Values end
+
+@if %g_colorEnabled% == 1 (
+    set "redPre=[91m"
+    set "greenPre=[92m"
+    set "yellowPre=[93m"
+    set "bluePre=[94m"
+    set "magentaPre=[95m"
+    set "cyanPre=[96m"
+    set "clrSuf=[0m"
+) else (
+    set "redPre="
+    set "greenPre="
+    set "yellowPre="
+    set "bluePre="
+    set "magentaPre="
+    set "cyanPre="
+    set "clrSuf="
+)
 
 @set "_version=4.28.4"
 @title IPMI %_version%
@@ -48,11 +71,11 @@ if "%interface%" NEQ "" (set "paraI= -I %interface%") else set paraI=
 
 :breakParaParse
 if "%cmColorEnabled%"=="1" (
-    @set "clrSuf=[0m"
-    @set "errPre=[91m"
+    @set "errPre=%redPre%"
+    @set "cmSuf=%clrSuf%"
 ) else (
-    set clrSuf=
     set errPre=
+    set cmSuf=
 )
 call:hostparse %1 hostpre
 if %errorlevel% EQU 670 (
@@ -611,36 +634,31 @@ if %cmColorEnabled% NEQ 1 goto cmgo
 if "%cmClr%"=="" goto cmgo
 if "%cmClr%"=="%cmMsgLvl%" goto cmgo
 if /i "%cmClr%"=="r" (
-    @set "cmPre=[91m"
-    @set "cmSuf=[0m"
+    @set "cmPre=%redPre%"
     goto cmgo
 )
 if /i "%cmClr%"=="g" (
-    @set "cmPre=[92m"
-    @set "cmSuf=[0m"
+    @set "cmPre=%greenPre%"
     goto cmgo
 )
 if /i "%cmClr%"=="y" (
-    @set "cmPre=[93m"
-    @set "cmSuf=[0m"
+    @set "cmPre=%yellowPre%"
     goto cmgo
 )
 if /i "%cmClr%"=="b" (
-    @set "cmPre=[94m"
-    @set "cmSuf=[0m"
+    @set "cmPre=%bluePre%"
     goto cmgo
 )
 if /i "%cmClr%"=="m" (
-    @set "cmPre=[95m"
-    @set "cmSuf=[0m"
+    @set "cmPre=%magentaPre%"
     goto cmgo
 )
 if /i "%cmClr%"=="c" (
-    @set "cmPre=[96m"
-    @set "cmSuf=[0m"
+    @set "cmPre=%cyanPre%"
     goto cmgo
 )
 :cmgo
+@if not "%cmPre%" == "" set "cmSuf=%clrSuf%"
 if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
 call:GetTime cmYear cmMon cmDay cmHour cmMin cmSec
 set "cmTimeStamp=%cmyear%-%cmmon%-%cmday% %cmhour%:%cmmin%:%cmsec%"
