@@ -210,10 +210,26 @@ if /i "%~2"=="loop" if not "%~3"=="" (
     set loopArgs=
     goto loopCmdPre
 )
+if /i "%~2"=="monitor" if not "%~3"=="" (
+    set "loopmode=monitor"
+    shift
+    shift
+    set loopArgs=
+    goto loopCmdPre
+)
 goto default
 
 :loopCmdPre
-if "%~1"=="" goto loopCmd
+if "%~1"=="" (
+    if /I "%loopmode%" == "monitor" (
+        set "monLast=%TEMP%\ipmi-mon-last"
+        set "monCurr=%TEMP%\ipmi-mon-current"
+        ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs% 1>!monLast! 2>&1
+        type !monLast!
+        goto monCmd
+    )
+    goto loopCmd
+)
 set loopArgs=%loopArgs% %1
 shift
 goto loopCmdPre
@@ -222,6 +238,16 @@ goto loopCmdPre
 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
 ping localhost -n 2 -w 500 >nul 2>&1
 goto loopCmd
+
+:monCmd
+ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs% 1>%monCurr% 2>&1
+fc %monCurr% %monLast% 1>NUL 2>&1
+if %ERRORLEVEL% EQU 1 (
+    type %monCurr%
+    move /Y %monCurr% %monLast% 1>NUL 2>&1
+) else if %ERRORLEVEL% NEQ 0 @echo ipmi-script: warning %ERRORLEVEL%
+ping localhost -n 2 -w 500 >nul 2>&1
+goto monCmd
 
 :preCmParse
 if /i "%~3"=="" goto postCmParse
@@ -298,6 +324,9 @@ echo     Send IPMI commands
 echo;
 echo ipmi ^<IP^> loop ^<arg1^> [^<arg2^> [...]]
 echo     Send IPMI commands repeatedly with an interval of about 1 second.
+echo;
+echo ipmi ^<IP^> monitor ^<arg1^> [^<arg2^> [...]]
+echo     Similar to LOOP, but only shows update instead of every output.
 echo;
 echo ipmi version ^| -v ^| /v
 echo     Get current and latest version
