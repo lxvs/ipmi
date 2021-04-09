@@ -1,22 +1,23 @@
 @echo off
 @setlocal enableExtensions enableDelayedExpansion
 
-@REM --- Default values are set here
+@REM --- default options are set here!
 
-@set "defaultHostPrefix=100.2.76"
-@set "bmcUsername=admin"
-@set "bmcPassword=admin"
-@set "interface=lanplus"
+@if not defined defaultHostPrefix set "defaultHostPrefix=100.2.76"
+@if not defined bmcUsername set "bmcUsername=admin"
+@if not defined bmcPassword set "bmcPassword=admin"
+@if not defined ipmiInterface set "ipmiInterface=lanplus"
 
-@set /a g_colorEnabled=1
+@if not defined g_colorEnabled set /a g_colorEnabled=1
 
-@set /a cmPingRetry=3
-@set /a cmEwsRetry=2
-@set /a cmLogLvl=2
-@set /a cmColorEnabled=1
-@set /a cmEwsTimeOut=1
+@REM - Connection Monitor settings
+@if not defined cmPingRetry set /a cmPingRetry=3
+@if not defined cmEwsRetry set /a cmEwsRetry=2
+@if not defined cmLogLvl set /a cmLogLvl=2
+@if not defined cmColorEnabled set /a cmColorEnabled=1
+@if not defined cmEwsTimeOut set /a cmEwsTimeOut=1
 
-@REM --- Default Values end
+@REM --- settings end
 
 @if %g_colorEnabled% == 1 (
     set "redPre=[91m"
@@ -47,7 +48,7 @@ if /i "%~1"=="/v" goto version
 @echo %1 | findstr /i "version" >NUL && goto version
 if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set paraU=
 if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set paraP=
-if "%interface%" NEQ "" (set "paraI= -I %interface%") else set paraI=
+if "%ipmiInterface%" NEQ "" (set "paraI= -I %ipmiInterface%") else set paraI=
 
 :paraParse
 @echo %1 | findstr "\-I \-U \-P" >NUL && (
