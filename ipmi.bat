@@ -17,6 +17,10 @@
 @if not defined cmColorEnabled set /a cmColorEnabled=1
 @if not defined cmEwsTimeOut set /a cmEwsTimeOut=1
 
+@REM - LOOP and MONITOR settings
+@if not defined loopShowTimeStamps set /a loopShowTimeStamps=1
+@if not defined monitorShowTimeStamps set /a monitorShowTimeStamps=1
+
 @REM --- settings end
 
 @if %g_colorEnabled% == 1 (
@@ -248,8 +252,10 @@ if "%~1"=="" (
     if /I "%loopmode%" == "monitor" (
         set "monLast=%TEMP%\ipmi-mon-last"
         set "monCurr=%TEMP%\ipmi-mon-current"
-        call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
-        @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
+        if "%monitorShowTimeStamps%" == "1" (
+            call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
+            @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
+        )
         ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs% 1>!monLast! 2>&1
         type !monLast!
         goto monCmd
@@ -261,8 +267,10 @@ shift
 goto loopCmdPre
 
 :loopCmd
-call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
-@echo %yellowPre%%lpYear%-%lpMon%-%lpDay% %lpHour%:%lpMin%:%lpSec%%clrSuf%
+if "%loopShowTimeStamps%" == "1" (
+    call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
+    @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
+)
 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
 ping localhost -n 2 -w 500 >nul 2>&1
 goto loopCmd
@@ -271,8 +279,10 @@ goto loopCmd
 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs% 1>%monCurr% 2>&1
 fc %monCurr% %monLast% 1>NUL 2>&1
 if %ERRORLEVEL% EQU 1 (
-    call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
-    @echo %yellowPre%%lpYear%-%lpMon%-%lpDay% %lpHour%:%lpMin%:%lpSec%%clrSuf%
+    if "%monitorShowTimeStamps%" == "1" (
+        call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
+        @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
+    )
     type %monCurr%
     move /Y %monCurr% %monLast% 1>NUL 2>&1
 ) else if %ERRORLEVEL% NEQ 0 @echo ipmi-script: warning %ERRORLEVEL%
