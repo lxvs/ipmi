@@ -54,27 +54,27 @@ if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set paraU=
 if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set paraP=
 if "%ipmiInterface%" NEQ "" (set "paraI= -I %ipmiInterface%") else set paraI=
 
-:paraParse
+:paramParse
 @echo %1 | findstr "\-I \-U \-P" >NUL && (
     if "%~1"=="-I" (
         if "%~2" NEQ "" set "paraI= -I %~2"
-        shift /1
-        shift /1
-        goto paraParse
+        shift
+        shift
+        goto paramParse
     ) else if "%~1"=="-U" (
         if "%~2" NEQ "" set "paraU= -U %~2"
-        shift /1
-        shift /1
-        goto paraParse
+        shift
+        shift
+        goto paramParse
     ) else if "%~1"=="-P" (
         if "%~2" NEQ "" set "paraP= -P %~2"
-        shift /1
-        shift /1
-        goto paraParse
-    ) else goto breakParaParse
+        shift
+        shift
+        goto paramParse
+    ) else goto breakParamParse
 )
 
-:breakParaParse
+:breakParamParse
 if "%cmColorEnabled%"=="1" (
     @set "errPre=%redPre%"
     @set "cmSuf=%clrSuf%"
