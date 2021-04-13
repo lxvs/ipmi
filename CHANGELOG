@@ -1,3 +1,8 @@
+4.29.1 - 2021-04-13  lxvs
+
+	* IMPROVEMENT: rename paraParse to paramParse
+	* IMPROvEMENT: remove an unnecessary argument of shift
+
 4.29.0 - 2021-04-09  lxvs
 
 	* NEW: introduce MONITOR command, similar to LOOP, but only shows
