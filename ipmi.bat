@@ -42,8 +42,9 @@
     set "clrSuf="
 )
 
-@set "_version=4.29.1"
-@title IPMI %_version%
+@set "_ver="
+@if exist VERSION @for /f %%i in (VERSION) do @if not defined _ver set "_ver=%%i"
+@title IPMI %_ver%
 if "%~1"=="" goto usage
 @set cmLogLvlTmp=
 @set cmPingRetryTmp=
@@ -354,7 +355,7 @@ set "usageTempFile=%TEMP%\ipmi-usage.tmp"
 @echo Loading help ...
 @(
 echo;
-echo IPMI script %_version%
+echo IPMI script %_ver%
 echo https://github.com/lxvs/ipmi
 echo;
 echo;
@@ -702,7 +703,7 @@ exit /b
 
 :version
 @echo;
-@echo version: %_version%
+@echo version: %_ver%
 set /p=latest:  <NUL
 curl -m 5 "https://raw.githubusercontent.com/lxvs/ipmi/main/VERSION" 2>NUL || echo Timed out getting latest version. Please try again later.
 exit /b
