@@ -15,7 +15,8 @@
 @if not defined cmEwsRetry set /a cmEwsRetry=2
 @if not defined cmLogLvl set /a cmLogLvl=2
 @if not defined cmColorEnabled set /a cmColorEnabled=1
-@if not defined cmEwsTimeOut set /a cmEwsTimeOut=1
+@if not defined cmEwsTimeOut_s set /a cmEwsTimeout_s=1
+@if not defined cmPingTimeout_ms set /a cmPingTimeout_ms=100
 
 @REM - LOOP and MONITOR settings
 @if not defined loopShowTimeStamps set /a loopShowTimeStamps=1
@@ -525,7 +526,7 @@ if "%cmVer%"=="1" (
 call:write "------------------------------------------------------"
 
 :loop
-for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1') do (
+for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1 -w %cmPingTimeout_ms%') do (
     set TtlSeg=%%f
     goto afterfor
 )
@@ -571,7 +572,7 @@ if %cmPingRetry% GTR 0 (
 ) else goto writebad
 
 :gethttpcode
-for /f %%i in ('curl -w %cmEwsTimeOut% -so /dev/null -Iw %%{http_code} %hostExec%') do (
+for /f %%i in ('curl -w %cmEwsTimeout_s% -so /dev/null -Iw %%{http_code} %hostExec%') do (
     call:write "DEBUG: HTTP code updated:   %cmLastHttpCode% to %%i" 8
     call:write "DEBUG: BMC web status:      %cmEwsStatus%" 8
     call:write "HTTP code: %%i" 2
