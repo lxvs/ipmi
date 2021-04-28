@@ -44,6 +44,7 @@
 
 @set "_ver="
 @if exist VERSION @for /f %%i in (VERSION) do @if not defined _ver set "_ver=%%i"
+@if not defined _ver set "_ver=unknown-version"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
 @set cmLogLvlTmp=
@@ -517,13 +518,16 @@ set "cmPingB=Ping got no response."
 set "cmPingOrgG=Ping is OK."
 set "cmPingTrnG=Ping is OK."
 call:write "------------------------------------------------------"
-call:write "Host:        %hostExec%"
-call:write "Ping retry:  %cmPingRetry%"
+call:write "Host:          %hostExec%"
+call:write "Version:       %_ver%"
+call:write "Ping retry:    %cmPingRetry%"
+call:write "Ping timeout:  %cmPingTimeout_ms% ms"
 if "%cmVer%"=="1" (
-    call:write "EWS retry:   %cmEwsRetry%"
-    call:write "Log level:   %cmLogLvl%"
-    if %cmLogLvl% GTR 0 call:write "Log folder:  %cmWf%"
-) else call:write "Log folder:  %cmWf%"
+    call:write "EWS retry:     %cmEwsRetry%"
+    call:write "EWS timeout:   %cmEwsTimeout_s% s"
+    call:write "Log level:     %cmLogLvl%"
+    if %cmLogLvl% GTR 0 call:write "Log folder:    %cmWf%"
+) else call:write "Log folder:    %cmWf%"
 call:write "------------------------------------------------------"
 
 :loop
