@@ -1,3 +1,9 @@
+4.30.0 - 2021-04-28  lxvs
+
+	* introduce ping timeout and improve CM variables' name.
+	* Get version from file VERSION instead of set variable.
+	* Add displaying of version, ping/ews timeout in CM header.
+
 4.29.1 - 2021-04-13  lxvs
 
 	* IMPROVEMENT: rename paraParse to paramParse
