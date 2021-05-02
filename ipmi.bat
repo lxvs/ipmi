@@ -49,6 +49,7 @@
 if "%~1"=="" goto usage
 @set cmLogLvlTmp=
 @set cmPingRetryTmp=
+@if /i "%~1"=="/?" goto usage
 @echo %1 | findstr /i "? help usage" >NUL && goto usage
 if /i "%~1"=="-v" goto version
 if /i "%~1"=="/v" goto version
