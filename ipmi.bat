@@ -24,6 +24,8 @@
 
 @REM --- settings end
 
+@pushd %~dp0
+
 @if %g_colorEnabled% == 1 (
     set "redPre=[91m"
     set "greenPre=[92m"
@@ -358,6 +360,8 @@ echo;
 echo IPMI script %_ver%
 echo https://github.com/lxvs/ipmi
 echo;
+echo;
+echo Please run ipmi-setup.bat as Administrator before first use.
 echo;
 echo Usage:
 echo;
