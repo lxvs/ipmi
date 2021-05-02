@@ -2,3 +2,7 @@
 .gitignore export-ignore
 VERSION export-ignore
 *.bat eol=crlf
+CHANGELOG eol=crlf
+LICENSE eol=crlf
+README.md eol=crlf
+VERSION eof=crlf
