@@ -231,7 +231,7 @@ if /i "%~2"=="cdrom" (
 if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
     if !errorlevel! NEQ 0 exit /b 2060
-    ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power reset 2>NUL
+    2>NUL ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power reset
     if !errorlevel! EQU 0 exit /b
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power on
     exit /b
@@ -260,7 +260,7 @@ if "%~1"=="" (
             call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
             @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
         )
-        ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs% 1>!monLast! 2>&1
+        1>!monLast! 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
         type !monLast!
         goto monCmd
     )
@@ -276,21 +276,21 @@ if "%loopShowTimeStamps%" == "1" (
     @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
 )
 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
-ping localhost -n 2 -w 500 >nul 2>&1
+1>nul 2>&1 ping localhost -n 2 -w 500
 goto loopCmd
 
 :monCmd
-ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs% 1>%monCurr% 2>&1
-fc %monCurr% %monLast% 1>NUL 2>&1
+1>%monCurr% 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
+1>NUL 2>&1 fc %monCurr% %monLast%
 if %ERRORLEVEL% EQU 1 (
     if "%monitorShowTimeStamps%" == "1" (
         call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
         @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
     )
     type %monCurr%
-    move /Y %monCurr% %monLast% 1>NUL 2>&1
+    1>NUL 2>&1 move /Y %monCurr% %monLast%
 ) else if %ERRORLEVEL% NEQ 0 @echo ipmi-script: warning %ERRORLEVEL%
-ping localhost -n 2 -w 500 >nul 2>&1
+>nul 2>&1 ping localhost -n 2 -w 500
 goto monCmd
 
 :preCmParse
@@ -355,7 +355,7 @@ exit /b
 :usage
 set "usageTempFile=%TEMP%\ipmi-usage.tmp"
 @echo Loading help ...
-@(
+@>"%usageTempFile%" (
 echo;
 echo IPMI script %_ver%
 echo https://github.com/lxvs/ipmi
@@ -463,7 +463,7 @@ echo;
 echo ipmitool%paraI%%paraU%%paraP% -H 100.2.76.255 arg1 arg2 arg3
 echo;
 echo;
-)> %usageTempFile%
+)
 more /e %usageTempFile%
 del %usageTempFile%
 exit /b
@@ -479,7 +479,7 @@ exit /b
 @title %hostexec% SOL
 @echo;
 @echo ^> Deactivating previous SOL...
-ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate 2>NUL
+2>NUL ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate
 if "%~2" NEQ "" set solLfn=%cd%\%2
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
 @type nul>%solLfn% || (
@@ -489,7 +489,7 @@ if not defined solLfn (call:LFN %hostExec% solLfn 1)
 @echo;
 @echo ^> Activate SOL, saving to %SolLfn%
 explorer /select,"%solLfn%"
-(ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate) 1>%solLfn% 2>&1
+1>%solLfn% 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
 if %errorlevel% NEQ 0 (
     call:err fatal 4190 "SOL: failed to activate SOL" "See %SolLfn% for details"
     exit /b
@@ -546,14 +546,14 @@ if /i "%TtlSeg:~0,3%"=="TTL" (
         set cmCurrentStatus=g
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status is not defined." 8
         if "%cmver%"=="1" (call:gethttpcode) else call:write "%cmPingOrgG%" g
-        ping localhost -n 2 >NUL
+        1>nul 2>&1 ping localhost -n 2 -w 500
         goto loop
     )
     if /i "%cmCurrentStatus%"=="b" (
         set cmCurrentStatus=g
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status turns good." 8
         if "%cmver%"=="1" (call:gethttpcode) else call:write "%cmPingTrnG%" g
-        ping localhost -n 2 >NUL
+        1>nul 2>&1 ping localhost -n 2 -w 500
         goto loop
     )
     if /i "%cmCurrentStatus:~0,1%"=="b" (
@@ -561,12 +561,12 @@ if /i "%TtlSeg:~0,3%"=="TTL" (
         call:write "Just jitters, ignored." 1
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because of jitters." 8
         if "%cmver%"=="1" call:gethttpcode
-        ping localhost -n 2 >NUL
+        1>nul 2>&1 ping localhost -n 2 -w 500
         goto loop
     )
     if "%cmver%"=="1" call:write "DEBUG: calling GHC mandatorily." 8
     if "%cmver%"=="1" call:gethttpcode
-    ping localhost -n 2 >NUL
+    1>nul 2>&1 ping localhost -n 2 -w 500
     goto loop
 )
 call:write "ping: failed!" 2
@@ -692,9 +692,9 @@ set "cmLogMsg=%~1"
 if %cmMsgLvl% EQU 0 @echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
 if not exist "%cmWf%" md "%cmWf%"
-if %cmMsgLvl% EQU 0 (echo %cmTimeStamp% %cmLogMsg%) 1>>"%cmWf%\%hostExec%.log"
+if %cmMsgLvl% EQU 0 >>"%cmWf%\%hostExec%.log" echo %cmTimeStamp% %cmLogMsg%
 if %cmLogLvl% LEQ 1 exit /b 0
-if %cmMsgLvl% LSS %cmLogLvl% (echo %cmTimeStamp% %cmLogMsg%) 1>>"%cmWf%\%hostExec%.verbose.log"
+if %cmMsgLvl% LSS %cmLogLvl% >>"%cmWf%\%hostExec%.verbose.log" echo %cmTimeStamp% %cmLogMsg%
 exit /b 0
 
 :GetTime
