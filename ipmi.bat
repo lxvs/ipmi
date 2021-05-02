@@ -42,9 +42,7 @@
     set "clrSuf="
 )
 
-@set "_ver="
-@if exist VERSION @for /f %%i in (VERSION) do @if not defined _ver set "_ver=%%i"
-@if not defined _ver set "_ver=unknown-version"
+@set "_ver=4.30.1"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
 @set cmLogLvlTmp=
