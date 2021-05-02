@@ -382,7 +382,7 @@ echo     Get help on this script
 echo;
 call:LFN *IP* fn
 echo ipmi ^<IP^> SOL
-echo     Collect SOL log to %fn%
+echo     Collect SOL log to !fn!
 echo;
 echo ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]
 echo     Collect SOL log to %cd%\^<FileName^>
