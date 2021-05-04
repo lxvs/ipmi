@@ -8,25 +8,25 @@
 @if not defined bmcPassword set "bmcPassword=admin"
 @if not defined ipmiInterface set "ipmiInterface=lanplus"
 
-@if not defined g_colorEnabled set /a g_colorEnabled=1
+@if not defined g_colorEnabled set /a "g_colorEnabled=1"
 
 @REM - Connection Monitor settings
-@if not defined cmPingRetry set /a cmPingRetry=3
-@if not defined cmEwsRetry set /a cmEwsRetry=2
-@if not defined cmLogLvl set /a cmLogLvl=2
-@if not defined cmColorEnabled set /a cmColorEnabled=1
-@if not defined cmEwsTimeOut_s set /a cmEwsTimeout_s=1
-@if not defined cmPingTimeout_ms set /a cmPingTimeout_ms=100
+@if not defined cmPingRetry set /a "cmPingRetry=3"
+@if not defined cmEwsRetry set /a "cmEwsRetry=2"
+@if not defined cmLogLvl set /a "cmLogLvl=2"
+@if not defined cmColorEnabled set /a "cmColorEnabled=1"
+@if not defined cmEwsTimeOut_s set /a "cmEwsTimeout_s=1"
+@if not defined cmPingTimeout_ms set /a "cmPingTimeout_ms=100"
 
 @REM - LOOP and MONITOR settings
-@if not defined loopShowTimeStamps set /a loopShowTimeStamps=1
-@if not defined monitorShowTimeStamps set /a monitorShowTimeStamps=1
+@if not defined loopShowTimeStamps set /a "loopShowTimeStamps=1"
+@if not defined monitorShowTimeStamps set /a "monitorShowTimeStamps=1"
 
 @REM --- settings end
 
 @pushd %~dp0
 
-@if %g_colorEnabled% == 1 (
+@if "%g_colorEnabled%" == 1 (
     set "redPre=[91m"
     set "greenPre=[92m"
     set "yellowPre=[93m"
@@ -47,16 +47,16 @@
 @set "_ver=4.30.1"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
-@set cmLogLvlTmp=
-@set cmPingRetryTmp=
+@set "cmLogLvlTmp="
+@set "cmPingRetryTmp="
 @if /i "%~1"=="/?" goto usage
 @echo %1 | findstr /i "? help usage" >NUL && goto usage
 if /i "%~1"=="-v" goto version
 if /i "%~1"=="/v" goto version
 @echo %1 | findstr /i "version" >NUL && goto version
-if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set paraU=
-if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set paraP=
-if "%ipmiInterface%" NEQ "" (set "paraI= -I %ipmiInterface%") else set paraI=
+if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set "paraU="
+if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set "paraP="
+if "%ipmiInterface%" NEQ "" (set "paraI= -I %ipmiInterface%") else set "paraI="
 
 :paramParse
 @echo %1 | findstr "\-I \-U \-P" >NUL && (
@@ -83,8 +83,8 @@ if "%cmColorEnabled%"=="1" (
     @set "errPre=%redPre%"
     @set "cmSuf=%clrSuf%"
 ) else (
-    set errPre=
-    set cmSuf=
+    set "errPre="
+    set "cmSuf="
 )
 call:hostparse %1 hostpre
 if %errorlevel% EQU 670 (
@@ -95,7 +95,7 @@ if %errorlevel% NEQ 0 exit /b
 goto exec
 
 :hostparse
-set /a host=%1 2>NUL || goto hostparsestart
+set /a "host=%~1" 2>NUL || goto hostparsestart
 if "%host%" NEQ "%~1" exit /b 670
 @REM integer without dot.
 :hostparsestart
@@ -118,19 +118,19 @@ if defined sece (
     exit /b 230
 )
 if defined secd (
-    set %2=
+    set "%2="
     exit /b 0
 )
 if defined secc if defined prea (
-    set %2=%prea%.
+    set "%2=%prea%."
     exit /b 0
 )
 if defined secb if defined preb (
-    set %2=%prea%.%preb%.
+    set "%2=%prea%.%preb%."
     exit /b 0
 )
 if defined seca if defined prec (
-    set %2=%prea%.%preb%.%prec%.
+    set "%2=%prea%.%preb%.%prec%."
     exit /b 0
 )
 call:err Error 240 "Parsed IP has less than 4 sections." ^
@@ -138,7 +138,7 @@ call:err Error 240 "Parsed IP has less than 4 sections." ^
 exit /b 240
 
 :exec
-set hostExec=%hostpre%%1
+set "hostExec=%hostpre%%~1"
 if "%~2"=="" (
     ping %hostExec% -n 2
     exit /b
@@ -152,11 +152,11 @@ if /i "%~2"=="-t" if "%~3"=="" (
     exit /b
 )
 if /i "%~2"=="cm" if "%~3"=="" (
-    set cmVer=0
+    set "cmVer=0"
     goto connectionMonitor
 )
 if /i "%~2"=="c" (
-    set cmVer=1
+    set "cmVer=1"
     if "%~3"=="" goto connectionMonitor
     goto preCmParse
 )
@@ -166,7 +166,7 @@ if /i "%~2"=="sol" (
         exit /b
     )
     if "%~4"=="" (
-        set solArg=%3
+        set "solArg=%~3"
         goto solargparse
     )
     goto default
@@ -193,10 +193,10 @@ if /i "%~2"=="bios" (
     exit /b
 )
 if /i "%~2"=="pxe" (
-    set efi=
-    if /i "%~3"=="efi" set efi=1
-    if /i "%~3"=="uefi" set efi=1
-    if /i "%~3"=="efiboot" set efi=1
+    set "efi="
+    if /i "%~3"=="efi" set "efi=1"
+    if /i "%~3"=="uefi" set "efi=1"
+    if /i "%~3"=="efiboot" set "efi=1"
     if defined efi (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev pxe options=efiboot
     ) else (
@@ -205,10 +205,10 @@ if /i "%~2"=="pxe" (
     exit /b
 )
 if /i "%~2"=="disk" (
-    set efi=
-    if /i "%~3"=="efi" set efi=1
-    if /i "%~3"=="uefi" set efi=1
-    if /i "%~3"=="efiboot" set efi=1
+    set "efi="
+    if /i "%~3"=="efi" set "efi=1"
+    if /i "%~3"=="uefi" set "efi=1"
+    if /i "%~3"=="efiboot" set "efi=1"
     if defined efi (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev disk options=efiboot
     ) else (
@@ -217,10 +217,10 @@ if /i "%~2"=="disk" (
     exit /b
 )
 if /i "%~2"=="cdrom" (
-    set efi=
-    if /i "%~3"=="efi" set efi=1
-    if /i "%~3"=="uefi" set efi=1
-    if /i "%~3"=="efiboot" set efi=1
+    set "efi="
+    if /i "%~3"=="efi" set "efi=1"
+    if /i "%~3"=="uefi" set "efi=1"
+    if /i "%~3"=="efiboot" set "efi=1"
     if defined efi (
         ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev cdrom options=efiboot
     ) else (
@@ -239,14 +239,14 @@ if /i "%~2"=="br" (
 if /i "%~2"=="loop" if not "%~3"=="" (
     shift
     shift
-    set loopArgs=
+    set "loopArgs="
     goto loopCmdPre
 )
 if /i "%~2"=="monitor" if not "%~3"=="" (
     set "loopmode=monitor"
     shift
     shift
-    set loopArgs=
+    set "loopArgs="
     goto loopCmdPre
 )
 goto default
@@ -266,7 +266,7 @@ if "%~1"=="" (
     )
     goto loopCmd
 )
-set loopArgs=%loopArgs% %1
+set "loopArgs=%loopArgs% %~1"
 shift
 goto loopCmdPre
 
@@ -281,14 +281,14 @@ goto loopCmd
 
 :monCmd
 1>%monCurr% 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
-1>NUL 2>&1 fc %monCurr% %monLast%
+1>NUL 2>&1 fc "%monCurr%" "%monLast%"
 if %ERRORLEVEL% EQU 1 (
     if "%monitorShowTimeStamps%" == "1" (
         call:GetTime lpYear lpMon lpDay lpHour lpMin lpSec
         @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
     )
-    type %monCurr%
-    1>NUL 2>&1 move /Y %monCurr% %monLast%
+    type "%monCurr%"
+    1>NUL 2>&1 move /Y "%monCurr%" "%monLast%"
 ) else if %ERRORLEVEL% NEQ 0 @echo ipmi-script: warning %ERRORLEVEL%
 >nul 2>&1 ping localhost -n 2 -w 500
 goto monCmd
@@ -297,42 +297,42 @@ goto monCmd
 if /i "%~3"=="" goto postCmParse
 if /i "%~3"=="-L" (
     if "%~4"=="" goto postCmParse
-    set cmLogLvlTmp=%4
+    set "cmLogLvlTmp=%~4"
     shift /3
     shift /3
     goto preCmParse
 )
 if /i "%~3"=="-P" (
     if "%~4"=="" goto postCmParse
-    set cmPingRetryTmp=%4
+    set "cmPingRetryTmp=%~4"
     shift /3
     shift /3
     goto preCmParse
 )
 if /i "%~3"=="-E" (
     if "%~4"=="" goto postCmParse
-    set cmEwsRetryTmp=%4
+    set "cmEwsRetryTmp=%~4"
     shift /3
     shift /3
     goto preCmParse
 )
 call:err Warning 760 "Unsupported CM parameter(s) met!"
 :postCmParse
-set /a cmLogLvlTmpPost=cmLogLvlTmp
-set /a cmPingRetryTmpPost=cmPingRetryTmp
-set /a cmEwsRetryTmpPost=cmEwsRetryTmp
+set /a "cmLogLvlTmpPost=cmLogLvlTmp"
+set /a "cmPingRetryTmpPost=cmPingRetryTmp"
+set /a "cmEwsRetryTmpPost=cmEwsRetryTmp"
 if "%cmLogLvlTmp%" NEQ "" if "%cmLogLvlTmpPost%"=="%cmLogLvlTmp%" (
-    set /a cmLogLvl=cmLogLvlTmpPost
+    set /a "cmLogLvl=cmLogLvlTmpPost"
 ) else (
     call:err Warning 800 "Parameter 'log level' was designated but did not applied."
 )
 if "%cmPingRetryTmp%" NEQ "" if "%cmPingRetryTmpPost%"=="%cmPingRetryTmp%" (
-    set /a cmPingRetry=cmPingRetryTmpPost
+    set /a "cmPingRetry=cmPingRetryTmpPost"
 ) else (
     call:err Warning 840 "Parameter 'ping retry' was designated but did not applied."
 )
 if "%cmEwsRetryTmp%" NEQ "" if "%cmEwsRetryTmpPost%"=="%cmEwsRetryTmp%" (
-    set /a cmEwsRetry=cmEwsRetryTmpPost
+    set /a "cmEwsRetry=cmEwsRetryTmpPost"
 ) else (
     call:err Warning 840 "Parameter 'EWS retry' was designated but did not applied."
 )
@@ -464,8 +464,8 @@ echo ipmitool%paraI%%paraU%%paraP% -H 100.2.76.255 arg1 arg2 arg3
 echo;
 echo;
 )
-more /e %usageTempFile%
-del %usageTempFile%
+more /e "%usageTempFile%"
+del "%usageTempFile%"
 exit /b
 
 :LFN
@@ -480,18 +480,18 @@ exit /b
 @echo;
 @echo ^> Deactivating previous SOL...
 2>NUL ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate
-if "%~2" NEQ "" set solLfn=%cd%\%2
+if "%~2" NEQ "" set "solLfn=%cd%\%~2"
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
-@type nul>%solLfn% || (
+@type nul>"%solLfn%" || (
     call:err Fatal 510 "SOL: Cannot create log file" "please consider to change a directory or run as administrator."
     exit /b
 )
 @echo;
 @echo ^> Activate SOL, saving to %SolLfn%
 explorer /select,"%solLfn%"
-1>%solLfn% 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
+1>"%solLfn%" 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
 if %errorlevel% NEQ 0 (
-    call:err fatal 4190 "SOL: failed to activate SOL" "See %SolLfn% for details"
+    call:err fatal 4190 "SOL: failed to activate SOL" "See "%SolLfn%" for details"
     exit /b
 )
 exit /b
@@ -510,9 +510,9 @@ exit /b %2
 @title %hostExec%
 set "cmWf=%cd%\ConnectionLogs"
 if not exist "%cmWf%" md "%cmWf%"
-set cmCurrentStatus=
-set cmEwsStatus=
-set cmLastHttpCode=
+set "cmCurrentStatus="
+set "cmEwsStatus="
+set "cmLastHttpCode="
 set "cmEwsOrgG=BMC web is accessible."
 set "cmEwsOrgB=BMC web is not ready."
 set "cmEwsTrnG=BMC web is accessible."
@@ -535,7 +535,7 @@ call:write "------------------------------------------------------"
 
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1 -w %cmPingTimeout_ms%') do (
-    set TtlSeg=%%f
+    set "TtlSeg=%%f"
     goto afterfor
 )
 
@@ -543,21 +543,21 @@ for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1 -w %cmPingTime
 if /i "%TtlSeg:~0,3%"=="TTL" (
     call:write "ping: OK." 2
     if not defined cmCurrentStatus (
-        set cmCurrentStatus=g
+        set "cmCurrentStatus=g"
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status is not defined." 8
         if "%cmver%"=="1" (call:gethttpcode) else call:write "%cmPingOrgG%" g
         1>nul 2>&1 ping localhost -n 2 -w 500
         goto loop
     )
     if /i "%cmCurrentStatus%"=="b" (
-        set cmCurrentStatus=g
+        set "cmCurrentStatus=g"
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because status turns good." 8
         if "%cmver%"=="1" (call:gethttpcode) else call:write "%cmPingTrnG%" g
         1>nul 2>&1 ping localhost -n 2 -w 500
         goto loop
     )
     if /i "%cmCurrentStatus:~0,1%"=="b" (
-        set cmCurrentStatus=g
+        set "cmCurrentStatus=g"
         call:write "Just jitters, ignored." 1
         if "%cmver%"=="1" call:write "DEBUG: calling GHC because of jitters." 8
         if "%cmver%"=="1" call:gethttpcode
@@ -574,7 +574,7 @@ if not defined cmCurrentStatus goto writebad
 if /i "%cmCurrentStatus%"=="b" goto loop
 if /i "%cmCurrentStatus:~0,1%"=="b" goto PingTrans
 if %cmPingRetry% GTR 0 (
-    set cmCurrentStatus=b0
+    set "cmCurrentStatus=b0"
     call:write "Ping failed, retrying." 1
     goto loop
 ) else goto writebad
@@ -585,25 +585,25 @@ for /f %%i in ('curl -w %cmEwsTimeout_s% -so /dev/null -Iw %%{http_code} %hostEx
     call:write "DEBUG: BMC web status:      %cmEwsStatus%" 8
     call:write "HTTP code: %%i" 2
     if "%%i" NEQ "%cmLastHttpCode%" (
-        set cmLastHttpCode=%%i
+        set "cmLastHttpCode=%%i"
         call:write "HTTP code updated: %%i" 1
     )
     if "%%i"=="000" (
         if "%cmEwsStatus%"=="" (
             call:write "%cmEwsOrgB%" y
-            set cmEwsStatus=b
+            set "cmEwsStatus=b"
         ) else if /i "%cmEwsStatus%" NEQ "b" (
             if /i "%cmEwsStatus:~0,1%"=="b" (
                 call:EwsTrans
                 exit /b
             )
             if %cmEwsRetry% GTR 0 (
-                set cmEwsStatus=b0
+                set "cmEwsStatus=b0"
                 call:write "EWS seems down, retrying." 1
                 exit /b
             ) else (
                 call:write "%cmEwsTrnB%" y
-                set cmEwsStatus=b
+                set "cmEwsStatus=b"
             )
         )
     ) else (
@@ -612,39 +612,39 @@ for /f %%i in ('curl -w %cmEwsTimeout_s% -so /dev/null -Iw %%{http_code} %hostEx
         ) else if /i "%cmEwsStatus%"=="b" (
             call:write "%cmEwsTrnG%" g
         )
-        set cmEwsStatus=g
+        set "cmEwsStatus=g"
     )
 )
 exit /b
 
 :PingTrans
-set /a cmPingRetried=%cmCurrentStatus:~-1%
-set /a cmPingRetried+=1
-set cmCurrentStatus=b%cmPingRetried%
+set /a "cmPingRetried=%cmCurrentStatus:~-1%"
+set /a "cmPingRetried+=1"
+set "cmCurrentStatus=b%cmPingRetried%"
 if /i "%cmEwsStatus%"=="b" set /a "cmPingRetried=cmPingRetry"
 call:write "Ping failed, retried = %cmPingRetried%." 1
 if %cmPingRetried% GEQ %cmPingRetry% (
-    set cmPingRetried=
+    set "cmPingRetried="
     goto writebad
 )
 goto loop
 
 :writebad
-set cmCurrentStatus=b
-set cmEwsStatus=
-set cmLastHttpCode=
+set "cmCurrentStatus=b"
+set "cmEwsStatus="
+set "cmLastHttpCode="
 call:write "%cmPingB%" r
 goto loop
 
 :EwsTrans
-set /a cmEwsRetried=%cmEwsStatus:~-1%
-set /a cmEwsRetried+=1
-set cmEwsStatus=b%cmEwsRetried%
+set /a "cmEwsRetried=%cmEwsStatus:~-1%"
+set /a "cmEwsRetried+=1"
+set "cmEwsStatus=b%cmEwsRetried%"
 call:write "EWS seems down, retried = %cmEwsRetried%." 1
 if %cmEwsRetried% GEQ %cmEwsRetry% (
-    set cmEwsRetried=
+    set "cmEwsRetried="
     call:write "%cmEwsTrnB%" y
-    set cmEwsStatus=b
+    set "cmEwsStatus=b"
 )
 exit /b
 
@@ -654,8 +654,8 @@ exit /b
 @REM    -OR- MsgLvl (0-9)
 set "cmClr=%~2"
 set /a "cmMsgLvl=cmClr"
-set cmPre=
-set cmSuf=
+set "cmPre="
+set "cmSuf="
 if %cmColorEnabled% NEQ 1 goto cmgo
 if "%cmClr%"=="" goto cmgo
 if "%cmClr%"=="%cmMsgLvl%" goto cmgo
