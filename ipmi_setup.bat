@@ -46,7 +46,7 @@ echo @%%IPMI_SCRIPT%% %%*
 @popd
 
 @echo Complete!
-@echo Now you can use command 'ipmi' everywhere in Command Prompt.
+@echo Now you can use command 'ipmi' everywhere in Command Prompt or PowerShell.
 @pause
 @exit /b 0
 
