@@ -44,7 +44,7 @@
     set "clrSuf="
 )
 
-@set "_ver=4.30.1"
+@set "_ver=5.0.0"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
 @set "cmLogLvlTmp="
