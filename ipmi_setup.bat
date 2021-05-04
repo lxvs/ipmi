@@ -38,6 +38,13 @@ echo ^)
 echo @%%IPMI_SCRIPT%% %%*
 ) || goto err
 
+@pushd "%USERPROFILE%"
+@if exist "ipmi.bat" (
+    @echo removing 4.x verison of ipmi script.
+    @del /f /q ipmi.bat CHANGELOG LICENSE README.md VERSION ipmitool.exe libeay32.dll 1>nul 2>&1
+)
+@popd
+
 @echo Complete!
 @echo Now you can use command 'ipmi' everywhere in Command Prompt.
 @pause
