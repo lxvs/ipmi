@@ -1,3 +1,10 @@
+5.0.1 - 2021-05-04  lxvs
+
+	* Bugfixes on 2 issues caused in commit efd356d.
+	* Add removal of 4.x ipmi script to ipmi_setup.bat
+	* Update README.md
+	* Add README.txt
+
 5.0.0 - 2021-05-04  lxvs
 
 	* Upgrade ipmitool to 1.8.18
