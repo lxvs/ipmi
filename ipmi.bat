@@ -24,9 +24,9 @@
 
 @REM --- settings end
 
-@pushd %~dp0
+@pushd "%~dp0"
 
-@if "%g_colorEnabled%" == 1 (
+@if "%g_colorEnabled%" == "1" (
     set "redPre=[91m"
     set "greenPre=[92m"
     set "yellowPre=[93m"
@@ -491,7 +491,7 @@ if not defined solLfn (call:LFN %hostExec% solLfn 1)
 explorer /select,"%solLfn%"
 1>"%solLfn%" 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
 if %errorlevel% NEQ 0 (
-    call:err fatal 4190 "SOL: failed to activate SOL" "See "%SolLfn%" for details"
+    call:err fatal 4190 "SOL: failed to activate SOL" "See %SolLfn% for details"
     exit /b
 )
 exit /b
