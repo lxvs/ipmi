@@ -1,3 +1,8 @@
+5.0.2 - 2021-05-06  lxvs
+
+	* Add PowerShell to finishing prompt of ipmi_setup.bat
+	* Add a prompt to close all console instances in ipmi_setup.bat
+
 5.0.1 - 2021-05-04  lxvs
 
 	* Bugfixes on 2 issues caused in commit efd356d.
