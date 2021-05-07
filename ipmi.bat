@@ -361,7 +361,7 @@ echo IPMI script %_ver%
 echo https://github.com/lxvs/ipmi
 echo;
 echo;
-echo Please run ipmi-setup.bat as Administrator before first use.
+echo Please run ipmi_setup.bat as Administrator before first use.
 echo;
 echo Usage:
 echo;
