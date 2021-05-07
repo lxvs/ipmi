@@ -380,6 +380,9 @@ echo;
 echo ipmi [? ^| help ^| usage]
 echo     Get help on this script
 echo;
+echo ipmi -h
+echo     Get help of ipmitool
+echo;
 call:LFN *IP* fn
 echo ipmi ^<IP^> SOL
 echo     Collect SOL log to !fn!
