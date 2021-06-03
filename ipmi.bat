@@ -24,6 +24,8 @@
 
 @REM --- settings end
 
+set "precd=%cd%"
+if "%precd:~-1%" == "\" set "precd=%precd:~0,-1%"
 @pushd "%~dp0"
 
 @if "%g_colorEnabled%" == "1" (
@@ -44,7 +46,7 @@
     set "clrSuf="
 )
 
-@set "_ver=5.0.2"
+@set "_ver=5.0.3"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
 @set "cmLogLvlTmp="
@@ -388,7 +390,7 @@ echo ipmi ^<IP^> SOL
 echo     Collect SOL log to !fn!
 echo;
 echo ipmi ^<IP^> SOL [^<FN^>.log ^| ^<FN^>.txt]
-echo     Collect SOL log to %cd%\^<FileName^>
+echo     Collect SOL log to ^<FileName^>
 echo;
 echo ipmi ^<IP^> [t]
 echo     Ping
@@ -480,17 +482,30 @@ exit /b
 
 :SOL
 @title %hostexec% SOL
-@echo;
+set "solLfn="
+if "%~2" NEQ "" set "solLfn=%precd%\%~2"
+if not defined solLfn goto sol_continue
+if not exist "%solLfn%" goto sol_continue
+set "solow="
+set /p "solow=%solLfn% exists, overwrite it? (Y/n): "
+if /i "%solow%" == "y" (
+    del /f "%solLfn%" || (
+        call:err Fatal 4880 "SOL: Failed to delete file %solLfn%"
+        exit /b
+    )
+) else (
+    call:err Fatal 4920 "SOL: User aborted."
+    exit /b
+)
+:sol_continue
 @echo ^> Deactivating previous SOL...
 2>NUL ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol deactivate
-if "%~2" NEQ "" set "solLfn=%cd%\%~2"
 if not defined solLfn (call:LFN %hostExec% solLfn 1)
 @type nul>"%solLfn%" || (
     call:err Fatal 510 "SOL: Cannot create log file" "please consider to change a directory or run as administrator."
     exit /b
 )
-@echo;
-@echo ^> Activate SOL, saving to %SolLfn%
+@echo ^> Activated SOL, saving to %SolLfn%
 explorer /select,"%solLfn%"
 1>"%solLfn%" 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
 if %errorlevel% NEQ 0 (
