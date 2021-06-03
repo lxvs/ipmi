@@ -1,3 +1,8 @@
+5.1.0 - 2021-06-03  lxvs
+
+	* Add loop/monitor interval settings/parameters.
+	* Reject to loop/monitor if no command specified.
+
 5.0.3 - 2021-06-03  lxvs
 
 	* Fix a issue that when in drive root, cd is 'C:\', while when not,

@@ -21,6 +21,8 @@
 @REM - LOOP and MONITOR settings
 @if not defined loopShowTimeStamps set /a "loopShowTimeStamps=1"
 @if not defined monitorShowTimeStamps set /a "monitorShowTimeStamps=1"
+@if not defined loopInterval_s set /a "loopInterval_s=30"
+@if not defined monitorInterval_s set /a "monitorInterval_s=30"
 
 @REM --- settings end
 
@@ -46,7 +48,7 @@ if "%precd:~-1%" == "\" set "precd=%precd:~0,-1%"
     set "clrSuf="
 )
 
-@set "_ver=5.0.3"
+@set "_ver=5.1.0"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
 @set "cmLogLvlTmp="
@@ -238,18 +240,46 @@ if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power on
     exit /b
 )
-if /i "%~2"=="loop" if not "%~3"=="" (
-    shift
-    shift
-    set "loopArgs="
-    goto loopCmdPre
+if /i "%~2"=="loop" (
+    if not "%~3"=="" (
+        set /a "loopInterval_s_tmp=%~3" 2>nul && (
+            if "!loopInterval_s_tmp!" == "%~3" (
+                set /a "loopInterval_s=!loopInterval_s_tmp!+1"
+                shift
+            )
+        ) || (
+            call:err Fatal 2510 "Invalid interval value: %~3"
+            exit /b
+        )
+        shift
+        shift
+        set "loopArgs="
+        goto loopCmdPre
+    ) else (
+        call:err Fatal 2560 "No command provided!"
+        exit /b
+    )
 )
-if /i "%~2"=="monitor" if not "%~3"=="" (
-    set "loopmode=monitor"
-    shift
-    shift
-    set "loopArgs="
-    goto loopCmdPre
+if /i "%~2"=="monitor" (
+    if not "%~3"=="" (
+        set "loopmode=monitor"
+        set /a "monitorInterval_s_tmp=%~3" 2>nul && (
+            if "!monitorInterval_s_tmp!" == "%~3" (
+                set /a "monitorInterval_s=!monitorInterval_s_tmp!+1"
+                shift
+            )
+        ) || (
+            call:err Fatal 2720 "Invalid interval value: %~3"
+            exit /b
+        )
+        shift
+        shift
+        set "loopArgs="
+        goto loopCmdPre
+    ) else (
+        call:err Fatal 2740 "No command provided!"
+        exit /b
+    )
 )
 goto default
 
@@ -278,7 +308,7 @@ if "%loopShowTimeStamps%" == "1" (
     @echo %yellowPre%!lpYear!-!lpMon!-!lpDay! !lpHour!:!lpMin!:!lpSec!%clrSuf%
 )
 ipmitool%paraI%%paraU%%paraP% -H %hostExec%%loopArgs%
-1>nul 2>&1 ping localhost -n 2 -w 500
+1>nul 2>&1 ping localhost -n %loopInterval_s% -w 500
 goto loopCmd
 
 :monCmd
@@ -292,7 +322,7 @@ if %ERRORLEVEL% EQU 1 (
     type "%monCurr%"
     1>NUL 2>&1 move /Y "%monCurr%" "%monLast%"
 ) else if %ERRORLEVEL% NEQ 0 @echo ipmi-script: warning %ERRORLEVEL%
->nul 2>&1 ping localhost -n 2 -w 500
+>nul 2>&1 ping localhost -n %monitorInterval_s% -w 500
 goto monCmd
 
 :preCmParse
