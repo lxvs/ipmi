@@ -1,3 +1,11 @@
+5.0.3 - 2021-06-03  lxvs
+
+	* Fix a issue that when in drive root, cd is 'C:\', while when not,
+	  cd is 'C:\path', without slash. It will cause a failure deleting
+	  file 'C:\\somefile'
+	* When SOL log filename is specified, save to cd instead of ~dp0.
+	* Add SOL log file overwrite confirmation.
+
 5.0.2 - 2021-05-06  lxvs
 
 	* Add PowerShell to finishing prompt of ipmi_setup.bat
