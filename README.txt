@@ -13,7 +13,7 @@ Usage
 
 2. Extract all files to your favored place.
 
-3. Execute ipmi_setup.bat as Administrator.
+3. Execute INSTALL.bat as Administrator.
 
 4. Use command 'ipmi /?' in Command Prompt or PowerShell to get detailed
    usage information.

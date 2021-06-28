@@ -1,4 +1,4 @@
-@REM Run this script to revert everything ipmi_setup.bat did.
+@REM Run this script to revert everything INSTALL.bat did.
 @REM https://github.com/lxvs/ipmi
 
 @setlocal
@@ -21,7 +21,7 @@
 @if %errorlevel% EQU 0 @REG delete "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /f /v "IPMI_SCRIPT" 1>nul || goto err
 
 @echo Complete!
-@echo Now everything ipmi_setup.bat did was all reverted.
+@echo Now everything INSTALL.bat did was all reverted.
 @pause
 @exit /b 0
 

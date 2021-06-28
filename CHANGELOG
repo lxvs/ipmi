@@ -1,9 +1,9 @@
-5.1.0 - 2021-06-03  lxvs
+5.1.0 - 2021-06-03
 
 	* Add loop/monitor interval settings/parameters.
 	* Reject to loop/monitor if no command specified.
 
-5.0.3 - 2021-06-03  lxvs
+5.0.3 - 2021-06-03
 
 	* Fix a issue that when in drive root, cd is 'C:\', while when not,
 	  cd is 'C:\path', without slash. It will cause a failure deleting
@@ -11,19 +11,19 @@
 	* When SOL log filename is specified, save to cd instead of ~dp0.
 	* Add SOL log file overwrite confirmation.
 
-5.0.2 - 2021-05-06  lxvs
+5.0.2 - 2021-05-06
 
 	* Add PowerShell to finishing prompt of ipmi_setup.bat
 	* Add a prompt to close all console instances in ipmi_setup.bat
 
-5.0.1 - 2021-05-04  lxvs
+5.0.1 - 2021-05-04
 
 	* Bugfixes on 2 issues caused in commit efd356d.
 	* Add removal of 4.x ipmi script to ipmi_setup.bat
 	* Update README.md
 	* Add README.txt
 
-5.0.0 - 2021-05-04  lxvs
+5.0.0 - 2021-05-04
 
 	* Upgrade ipmitool to 1.8.18
 	* Introduce ipmi_setup.bat and ipmi_unsetup.bat
@@ -33,22 +33,22 @@
 	* Specify eol=crlf for every text file in repo.
 	* Many other improvements in ipmi.bat
 
-4.30.1 - 2021-04-28  lxvs
+4.30.1 - 2021-04-28
 
 	* Fixed an issue that file VERSION is absent in downloaded zip.
 
-4.30.0 - 2021-04-28  lxvs
+4.30.0 - 2021-04-28
 
 	* introduce ping timeout and improve CM variables' name.
 	* Get version from file VERSION instead of set variable.
 	* Add displaying of version, ping/ews timeout in CM header.
 
-4.29.1 - 2021-04-13  lxvs
+4.29.1 - 2021-04-13
 
 	* IMPROVEMENT: rename paraParse to paramParse
 	* IMPROvEMENT: remove an unnecessary argument of shift
 
-4.29.0 - 2021-04-09  lxvs
+4.29.0 - 2021-04-09
 
 	* NEW: introduce MONITOR command, similar to LOOP, but only shows
 	       update instead of every output
@@ -57,68 +57,68 @@
 	               variables
 	* IMPROVEMENT: other minor ones
 
-4.28.4 - 2021-04-07  lxvs
+4.28.4 - 2021-04-07
 
 	* IMPROVEMENT: an easier-to-read color of error prompts
 	* IMPROVEMENT: add @ before REM/SETLOCAL/ECHO/TITLE/color-settings
 	* IMPROVEMENT: improve SOL function
 
-4.28.3 - 2021-04-01  lxvs
+4.28.3 - 2021-04-01
 
 	* IMPROVEMENT: remove unnecessary errorlevel arguments of exit
 
-4.28.2 - 2021-03-30  lxvs
+4.28.2 - 2021-03-30
 
 	* BUGFIX: SUT might stay powered off after BR command
 	* IMPROVEMENT: replace all goto-eof with exit-b-errorlevel
 
-4.28.1 - 2021-03-26  lxvs
+4.28.1 - 2021-03-26
 
 	* IMPROVEMENT: move generated usage.tmp to Windows temp folder
 
-4.28.0 - 2021-03-26  lxvs
+4.28.0 - 2021-03-26
 
 	* NEW: ipmi loop - send ipmitool command repeatedly
 
-4.27.2 - 2021-03-25  lxvs
+4.27.2 - 2021-03-25
 
 	* BUGFIX: stuck when EWS is not responding.
 	* IMPROVEMENT: introduce the time out setting for EWS of CM.
 	* IMPROVEMENT: introduce a 5-second time-out for version getting.
 
-4.27.1 - 2021-03-24  lxvs
+4.27.1 - 2021-03-24
 
 	* IMPROVEMENT: add loading prompt prior to help info.
 	* IMPROVEMENT: add 2 empty lines at the end of help info.
 
-4.27.0 - 2021-03-23  lxvs
+4.27.0 - 2021-03-23
 
 	* NEW: specify -I/-U/-P parameters in command.
 	* IMPROVEMENT: replace 'EQU' with '==' for string comparisons.
 
-4.26.0 - 2021-03-23  lxvs
+4.26.0 - 2021-03-23
 
 	* NEW: ipmi pxe/disk/cdrom commands as well as efi option.
 
-4.25.2 - 2021-03-23  lxvs
+4.25.2 - 2021-03-23
 
 	* BUGFIX: cannot display usage in some environments.
 
-4.25.1 - 2021-03-19  lxvs
+4.25.1 - 2021-03-19
 
 	* IMPROVEMENT: change ipmi br command from reset to off and on.
 
-4.25.0 - 2021-03-12  lxvs
+4.25.0 - 2021-03-12
 
 	* NEW: custom BMC username/password and interface support.
 	* GITIGNORE: add usage.tmp.
 
-2021-03-11  lxvs
+2021-03-11
 
 	* IMPROVEMENT: rename label 'trans' to 'PingTrans'.
 	* IMPROVEMENT: PingTrans and EwsTrans.
 
-4.24.1 - 2021-03-11  lxvs
+4.24.1 - 2021-03-11
 
 	* BUGFIX: another EWS accessiblility info shows when jitters.
 	* BUGFIX: a typo in codes.
@@ -128,7 +128,7 @@
 	* IMPROVEMENT: adjustments on usage info typesettings.
 	* IMPROVEMENT: add explanation on IP segments and dHPrefix.
 
-4.24.0 - 2021-03-09  lxvs
+4.24.0 - 2021-03-09
 
 	* NEW: EWS status transition. Use '-E <num>' argument to define.
 	       Ping Retry argument is changed to '-P' from '-M'.
@@ -136,43 +136,43 @@
 	* IMPROVEMENT: reword some statements: 'bad' -> 'failed'.
 	* IMPROVEMENT: minor ones on codes.
 
-4.23.2 - 2021-03-05  lxvs
+4.23.2 - 2021-03-05
 
 	* BUGFIX: EWS status original down was treated as turning down.
 	* IMPROVEMENT: rename vairable 'cmBmcWebStatus' to 'cmEwsStatus'.
 
-2021-03-04  lxvs
+2021-03-04
 
 	* IMPROVEMENT: minor one on codes.
 
-4.23.1 - 2021-03-03  lxvs
+4.23.1 - 2021-03-03
 
 	* IMPROVEMENT: CM header typesetting.
 
-2021-03-02  lxvs
+2021-03-02
 
 	* IMPROVEMENT: add prompt when failed to get latest version. 
 	* IMPROVEMENT: performance.
 	* IMPROVEMENT: change bmc bad info color from red to yellow.
 	* IMPROVEMENT: both code structure and prompts of ping/EWS prompt.
 
-4.23.0 - 2021-03-02  lxvs
+4.23.0 - 2021-03-02
 
 	* NEW: colorful output support.
 	* BUGFIX: change 'if "%1"...' to 'if "%~1"...'.
 	* IMPROVEMENT: remove some empty line outputs.
 	* IMPROVEMENT: minor improvements in codes.
 
-2021-02-26  lxvs
+2021-02-26
 
 	* CHANGE SIGNING NAME FROM JOHNNY APPLESEED TO LXVS.
 
-4.22.1 - 2021-02-26  lxvs
+4.22.1 - 2021-02-26
 
 	* BUGFIX: set *.bat eol to crlf in gitattributes to solve the issue
 	          that system cannot find label 'precmparse'.
 
-4.22.0 - 2021-02-25  lxvs
+4.22.0 - 2021-02-25
 
 	* NEW: current/latest version check by 'ipmi version'.
 	* BUGFIX: connection monitor title is always bad.
@@ -180,7 +180,7 @@
 	* IMPROVEMENT: add help info for version and usage.
 	* IMPROVEMENT: the example in help info.
 
-4.21.0 - 2021-02-25  lxvs
+4.21.0 - 2021-02-25
 
 	* NEW: GetTime function, returns a locale-independent date.
 	* BUGFIX: log filenames are malformatted in different locales.
@@ -190,37 +190,37 @@
 	* IMPROVEMENT: multi-arguments support of error prompt.
 	* IMPROVEMENT: replace all 'echo;...' with 'echo ...'.
 
-4.20.1 - 2021-02-24  lxvs
+4.20.1 - 2021-02-24
 
 	* BUGFIX: parse error when input full parts of IP.
 	* GITIGNORE: add.
 
-4.20.0 - 2021-02-24  lxvs
+4.20.0 - 2021-02-24
 
 	* IMPROVEMENT: replace all 'echo.' with 'echo;', because the former
 	               has a better performance.
 	* IMPROVEMENT: replace update date with version number.
 	* IMPROVEMENT: replace email with github link.
 
-4.19.0 - 2021-01-23  lxvs
+4.19.0 - 2021-01-23
 
 	* BUGFIX: minor one on fan speed controling.
 
-4.18.0 - 2021-01-21  lxvs
+4.18.0 - 2021-01-21
 
 	* NEW: fan speed controlling commands, porting needed.
 	* IMPROVEMENT: fan speed controlling.
 	* IMPROVEMENT: on codes.
 
-4.16.0 - 2021-01-13  lxvs
+4.16.0 - 2021-01-13
 
 	* BUGFIX: fixed the trailing-white-space-in-log issue entirely.
 
-4.15.0 - 2021-01-08  lxvs
+4.15.0 - 2021-01-08
 
 	* IMPROVEMENT: choices of words.
 
-4.14.1 - 2021-01-05  lxvs
+4.14.1 - 2021-01-05
 
 	* BUGFIX: minor ones in CMEX.
 	* IMPROVEMENT: the log header of CMEX.
@@ -228,7 +228,7 @@
 	* IMPROVEMENT: other minor ones in CMEX.
 	* IMPROVEMENT: update the help info.
 
-4.9.0 - 2021-01-04  lxvs
+4.9.0 - 2021-01-04
 
 	* NEW: argument parsing for 'loglevel' and 'maxretry' of CMEX.
 	* BUGFIX: [CMEX] the log lines that end with '1' or '2' cannot be
@@ -236,7 +236,7 @@
 	* IMPROVEMENT: rename several variables in CMEX.
 	* IMPROVEMENT: code of CMEX.
 
-4.5.0 - 2021-01-03  lxvs
+4.5.0 - 2021-01-03
 
 	* NEW: log level, controls how verbose the logs are.
 	* IMPROVEMENT: [CMEX] stalls 2s instead of 1s after each successful
@@ -245,58 +245,58 @@
 	               will be logged into another logfile.
 	* IMPROVEMENT: [CMEX] suppress the millisecond of timestamps.
 
-4.3.0 - 2020-12-30  lxvs
+4.3.0 - 2020-12-30
 
 	* BUGFIX: a white space follows every line of logs.
 	* IMPROVEMENT: Now CMEX will log the HTTP code updates.
 	* IMPROVEMENT: BMC web accessibility prompts of CMEX.
 
-4.0.0 - 2020-12-30  lxvs
+4.0.0 - 2020-12-30
 
 	* NEW: Connection Monitor Ex, monitors the BMC web accessibility.
 
-3.4.0 - 2020-12-28  lxvs
+3.4.0 - 2020-12-28
 
 	* NEW: some help arguments.
 
-3.3.0 - 2020-12-25  lxvs
+3.3.0 - 2020-12-25
 
 	* NEW: a shortcut to force SUT boot to bios.
 	* IMPROVEMENT: change the default max retry times from 2 to 3.
 
-3.2.0 - 2020-12-22  lxvs
+3.2.0 - 2020-12-22
 
 	* IMPROVEMENT: [CM] stalls for 1s only when last pinging is
 	               successful, instead of every time it pings, to
 	               reduce responding time.
 
-3.1.0 - 2020-12-15  lxvs
+3.1.0 - 2020-12-15
 
 	* BUGFIX: host parsing funtion.
 	* IMPROVEMENT: rename several variable names.
 
-3.0.0 - 2020-12-14  lxvs
+3.0.0 - 2020-12-14
 
 	* NEW: Connection Monitor!
 	* IMPROVEMENT: host parsing function and help info.
 
-2.2.0 - 2020-12-02  lxvs
+2.2.0 - 2020-12-02
 
 	* IMPROVEMENT: let a variable controls SOL log folder.
 	* IMPROVEMENT: date format of filenames of SOL logs.
 
-2.1.0 - 2020-11-27  lxvs
+2.1.0 - 2020-11-27
 
 	* NEW: custom SOL log filename support.
 	* BUGFIX: the filename of auto generated SOL logs are confusing.
 	* IMPROVEMENT: IP address parsing function is stronger.
 	* IMPROVEMENT: help info and error prompt.
 
-1.9.0 - 2020-11-26  lxvs
+1.9.0 - 2020-11-26
 
 	* NEW: IP address parsing function.
 
-1.4.0 - 2020-11-24  lxvs
+1.4.0 - 2020-11-24
 
 	* NEW: If 1st arg is not a number (last part of IP), it will show
 	       the primitive ipmitool help info, instead of script usage.
@@ -304,19 +304,19 @@
 	* IMPROVEMENT: the SOL function.
 	* IMPROVEMENT: help information.
 
-1.2.0 - 2020-11-23  lxvs
+1.2.0 - 2020-11-23
 
 	* IMPROVEMENT: change the position of SOL logs.
 	* IMPROVEMENT: the SOL function.
 
-1.1.0 - 2020-11-20  lxvs
+1.1.0 - 2020-11-20
 
 	* IMPROVEMENT: pick the SOL function out of IF block to avoid 
 	               enabing delayed expansion.
 	* IMPROVEMENT: make log filename calculation independent.
 	* IMPROVEMENT: ping function.
 
-1.0.0 - 2020-11-16  lxvs
+1.0.0 - 2020-11-16
 
 	* NEW: collect SOL logs in a more convenient way.
 	* NEW: ping -t support.
