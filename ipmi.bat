@@ -568,18 +568,18 @@ set "cmEwsTrnB=BMC web is down."
 set "cmPingB=Ping got no response."
 set "cmPingOrgG=Ping is OK."
 set "cmPingTrnG=Ping is OK."
-call:write "------------------------------------------------------"
-call:write "Host:          %hostExec%"
-call:write "Version:       %_ver%"
-call:write "Ping retry:    %cmPingRetry%"
-call:write "Ping timeout:  %cmPingTimeout_ms% ms"
+call:write "------------------------------------------------------" 0 0
+call:write "Host:          %hostExec%" 0 0
+call:write "Version:       %_ver%" 0 0
+call:write "Ping retry:    %cmPingRetry%" 0 0
+call:write "Ping timeout:  %cmPingTimeout_ms% ms" 0 0
 if "%cmVer%"=="1" (
-    call:write "EWS retry:     %cmEwsRetry%"
-    call:write "EWS timeout:   %cmEwsTimeout_s% s"
-    call:write "Log level:     %cmLogLvl%"
-    if %cmLogLvl% GTR 0 call:write "Log folder:    %cmWf%"
-) else call:write "Log folder:    %cmWf%"
-call:write "------------------------------------------------------"
+    call:write "EWS retry:     %cmEwsRetry%" 0 0
+    call:write "EWS timeout:   %cmEwsTimeout_s% s" 0 0
+    call:write "Log level:     %cmLogLvl%" 0 0
+    if %cmLogLvl% GTR 0 call:write "Log folder:    %cmWf%" 0 0
+) else call:write "Log folder:    %cmWf%" 0 0
+call:write "------------------------------------------------------" 0 0
 
 :loop
 for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1 -w %cmPingTimeout_ms%') do (
@@ -697,10 +697,13 @@ if %cmEwsRetried% GEQ %cmEwsRetry% (
 exit /b
 
 :write
-@REM %1:message
-@REM %2:color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
-@REM    -OR- MsgLvl (0-9)
+@REM %1: message
+@REM %2: color (0/Red/Green/Yellow/Blue/Magenta/Cyan)
+@REM     -OR- MsgLvl (0-9)
+@REM %3: iftimestamp (0/1) default 1
 set "cmClr=%~2"
+set "cmIfts=%~3"
+if "%cmIfts%" == "" set "cmIfts=1"
 set /a "cmMsgLvl=cmClr"
 set "cmPre="
 set "cmSuf="
@@ -734,8 +737,10 @@ if /i "%cmClr%"=="c" (
 :cmgo
 @if not "%cmPre%" == "" set "cmSuf=%clrSuf%"
 if %cmMsgLvl% NEQ 0 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
-call:GetTime cmYear cmMon cmDay cmHour cmMin cmSec
-set "cmTimeStamp=%cmyear%-%cmmon%-%cmday% %cmhour%:%cmmin%:%cmsec%"
+if "%cmIfts%" == "1" call:GetTime cmYear cmMon cmDay cmHour cmMin cmSec
+if "%cmIfts%" == "1" (
+    set "cmTimeStamp=%cmyear%-%cmmon%-%cmday% %cmhour%:%cmmin%:%cmsec%"
+) else set "cmTimeStamp="
 set "cmLogMsg=%~1"
 if %cmMsgLvl% EQU 0 @echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
