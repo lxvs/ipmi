@@ -1,6 +1,6 @@
 
                                     ipmi
-                        https://github.com/lxvs/ipmi
+                           https://lxvs.net/ipmi
 
 A convenient script of IPMI tool.
 

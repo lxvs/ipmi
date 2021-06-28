@@ -1,5 +1,5 @@
 @REM Run this script to setup in order to call ipmi everywhere.
-@REM https://github.com/lxvs/ipmi
+@REM https://lxvs.net/ipmi
 
 @setlocal
 @set "fn=ipmi.cmd"

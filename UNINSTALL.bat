@@ -1,5 +1,5 @@
 @REM Run this script to revert everything INSTALL.bat did.
-@REM https://github.com/lxvs/ipmi
+@REM https://lxvs.net/ipmi
 
 @setlocal
 @set "fn=ipmi.cmd"

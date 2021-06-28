@@ -390,7 +390,7 @@ set "usageTempFile=%TEMP%\ipmi-usage.tmp"
 @>"%usageTempFile%" (
 echo;
 echo IPMI script %_ver%
-echo https://github.com/lxvs/ipmi
+echo https://lxvs.net/ipmi
 echo;
 echo;
 echo Please run INSTALL.bat as Administrator before first use.
