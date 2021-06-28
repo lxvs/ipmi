@@ -1,3 +1,12 @@
+5.1.1 - 2021-06-28
+
+	* Remove timestamps of Connection Monitor header.
+	* Rename ipmi_setup.bat to INSTALL.bat
+	* Rename ipmi_unsetup.bat to UNINSTALL.bat
+	* Add COPYING from ipmitool repository.
+	* Add @ before color definitions.
+	* Replace github repo link with lxvs.net/ipmi
+
 5.1.0 - 2021-06-03
 
 	* Add loop/monitor interval settings/parameters.
