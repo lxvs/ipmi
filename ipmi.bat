@@ -623,7 +623,7 @@ if %cmPingRetry% GTR 0 (
 ) else goto writebad
 
 :gethttpcode
-for /f %%i in ('curl -w %cmEwsTimeout_s% -so /dev/null -Iw %%{http_code} %hostExec%') do (
+for /f %%i in ('curl -m %cmEwsTimeout_s% -so /dev/null -Iw %%{http_code} %hostExec%') do (
     call:write "DEBUG: HTTP code updated:   %cmLastHttpCode% to %%i" 8
     call:write "DEBUG: BMC web status:      %cmEwsStatus%" 8
     call:write "HTTP code: %%i" 2
