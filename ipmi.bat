@@ -393,7 +393,7 @@ echo IPMI script %_ver%
 echo https://lxvs.net/ipmi
 echo;
 echo;
-echo Please run INSTALL.bat as Administrator before first use.
+echo Run INSTALL.bat before first use.
 echo;
 echo Usage:
 echo;
