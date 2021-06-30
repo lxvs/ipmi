@@ -1,31 +1,25 @@
-@REM Run this script to revert everything INSTALL.bat did.
+@REM IPMI script uninstallation
+@REM Only applies to v5.2.0 and above
 @REM https://lxvs.net/ipmi
 
-@setlocal
-@set "fn=ipmi.cmd"
-@pushd "%SYSTEMROOT%"
-@if exist "%fn%" (
-    del "%fn%" 1>nul 2>&1
-    if exist "%fn%" goto err
-)
-
-@where /q ipmi && (
-    @echo ERROR: found a name conflict with:
-    @where ipmi
-    @pause
+@echo off
+@echo Uninstalling...
+setlocal EnableExtensions EnableDelayedExpansion
+set "batchfolder=%~dp0"
+if "%batchfolder:~-1%" == "\" set "batchfolder=%batchfolder:~0,-1%"
+for /f "skip=2 tokens=1,2*" %%a in ('%SystemRoot%\System32\reg.exe query "HKCU\Environment" /v "Path" 2^>NUL') do if /i "%%~a" == "path" set "UserPath=%%c"
+if not defined UserPath (
+    >&2 echo Unknown error.
+    popd
+    pause
     exit /b 1
 )
-
-@REG query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v "IPMI_SCRIPT" 1>nul 2>&1
-
-@if %errorlevel% EQU 0 @REG delete "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /f /v "IPMI_SCRIPT" 1>nul || goto err
-
-@echo Complete!
-@echo Now everything INSTALL.bat did was all reverted.
+setx PATH "!UserPath:%batchfolder%;=!" 1>NUL || (
+    popd
+    pause
+    exit /b 1
+)
+%SystemRoot%\System32\reg.exe delete "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\ipmi.exe" /f 1>nul 2>&1
+@echo Complete.
 @pause
 @exit /b 0
-
-:err
-@echo ERROR: Please make sure to run as Administrator.
-@pause
-@exit /b 3
