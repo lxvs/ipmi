@@ -582,13 +582,8 @@ if "%cmVer%"=="1" (
 call:write "------------------------------------------------------" 0 0
 
 :loop
-for /f "skip=2 tokens=1-8 delims= " %%a in ('ping %hostExec% -n 1 -w %cmPingTimeout_ms%') do (
-    set "TtlSeg=%%f"
-    goto afterfor
-)
-
-:afterfor
-if /i "%TtlSeg:~0,3%"=="TTL" (
+ping %hostExec% -n 1 -w %cmPingTimeout_ms% 1>NUL 2>&1
+if %ErrorLevel% EQU 0 (
     call:write "ping: OK." 2
     if not defined cmCurrentStatus (
         set "cmCurrentStatus=g"
