@@ -1,3 +1,10 @@
+5.1.2 - 2021-06-30
+
+	* Fix a bug that EWS timeout does not take effect.
+	* Get ping result from ErrorLevel instead of TTL.
+	* Rename CHANGELOG to CHANGELOG.txt, because it should be only in
+	Windows OS.
+
 5.1.1 - 2021-06-28
 
 	* Remove timestamps of Connection Monitor header.
