@@ -3,7 +3,7 @@
 README.md	export-ignore
 VERSION	export-ignore
 *.bat	eol=crlf
-CHANGELOG	eol=crlf
+CHANGELOG.txt	eol=crlf
 LICENSE	eol=crlf
 README.txt	eol=crlf
 README.md	eol=crlf
