@@ -1,3 +1,7 @@
+5.2.0 - 2021-06-30
+
+	* INSTALL and UNINSTALL need not admin privilege any more.
+
 5.1.2 - 2021-06-30
 
 	* Fix a bug that EWS timeout does not take effect.
