@@ -119,7 +119,7 @@ for /f "delims=. tokens=1-4,*" %%a in ("%~1") do (
 :afterhostparse
 if defined sece (
     call:err Error 230 "IP input has more than 4 sections."
-    exit /b 230
+    exit /b
 )
 if defined secd (
     set "%2="
@@ -139,7 +139,7 @@ if defined seca if defined prec (
 )
 call:err Error 240 "Parsed IP has less than 4 sections." ^
          "Check either input or variable 'defaultHostPrefix'."
-exit /b 240
+exit /b
 
 :exec
 set "hostExec=%hostpre%%~1"
@@ -234,7 +234,7 @@ if /i "%~2"=="cdrom" (
 )
 if /i "%~2"=="br" (
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis bootdev bios
-    if !errorlevel! NEQ 0 exit /b 2060
+    if !errorlevel! NEQ 0 exit /b
     2>NUL ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power reset
     if !errorlevel! EQU 0 exit /b
     ipmitool%paraI%%paraU%%paraP% -H %hostExec% chassis power on
@@ -545,11 +545,11 @@ if %errorlevel% NEQ 0 (
 exit /b
 
 :err
-@echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
+>&2 echo %errPre%^> %~1^(%~2^): %~3%clrSuf%
 :errshift
 shift /3
 if "%~3" NEQ "" (
-    @echo %errPre%-^> %~3%clrSuf%
+    >&2 echo %errPre%-^> %~3%clrSuf%
     goto errshift
 )
 exit /b %2
