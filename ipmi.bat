@@ -281,6 +281,14 @@ if /i "%~2"=="monitor" (
         exit /b
     )
 )
+pushd %~dp0
+set "customCmd="
+if exist "custom\%~2.txt" for /f "usebackq delims=" %%i in ("custom\%~2.txt") do if not defined customCmd set "customCmd=%%i"
+popd
+if defined customCmd (
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% %customCmd%
+    exit /b
+)
 goto default
 
 :loopCmdPre
@@ -488,7 +496,7 @@ echo        7  192         No   -
 echo;
 echo BMC username/password can also be set there. Default: admin/admin.
 echo;
-echo Examples:
+echo Example:
 echo;
 echo If defaultHostPrefix was set to '100.2.76.', then
 echo;
@@ -496,6 +504,21 @@ echo ipmi 255 arg1 arg2 arg3
 echo     stands for:
 echo;
 echo ipmitool%paraI%%paraU%%paraP% -H 100.2.76.255 arg1 arg2 arg3
+echo;
+echo;
+echo Custom commands
+echo;
+echo     write ipmi command to custom\^<command^>.txt
+echo;
+echo Example:
+echo;
+echo     write 'raw 0x0 0x9 0x5 0x0 0x0' ^(without quotation marks^) to file
+echo     custom\getbootorder.txt, and then you can use command:
+echo        ipmi ^<IP^> getbootorder
+echo     as a shortcut to command:
+echo        ipmi ^<IP^> raw 0x0 0x9 0x5 0x0 0x0
+echo;
+echo;
 echo;
 echo;
 )
