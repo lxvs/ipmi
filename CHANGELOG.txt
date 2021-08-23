@@ -1,3 +1,7 @@
+5.3.1 - 2021-08-23
+
+	* Fix an issue about -I/U/P parameters.
+
 5.3.0 - 2021-07-02
 
 	* Introduce custom command feature.

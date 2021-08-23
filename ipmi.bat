@@ -47,8 +47,7 @@ if "%precd:~-1%" == "\" set "precd=%precd:~0,-1%"
     set "cyanPre="
     set "clrSuf="
 )
-
-@set "_ver=5.3.0"
+@set "_ver=5.3.1"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
 @set "cmLogLvlTmp="
@@ -79,10 +78,9 @@ if "%ipmiInterface%" NEQ "" (set "paraI= -I %ipmiInterface%") else set "paraI="
         shift
         shift
         goto paramParse
-    ) else goto breakParamParse
+    )
 )
 
-:breakParamParse
 if "%cmColorEnabled%"=="1" (
     @set "errPre=%redPre%"
     @set "cmSuf=%clrSuf%"
@@ -389,7 +387,13 @@ if "%solArg:~-4%"==".txt" (
 )
 
 :default
-ipmitool%paraI%%paraU%%paraP% -H %hostpre%%*
+set "all_args=%hostpre%%~1"
+shift
+:set_all_arg
+set "all_args=%all_args% %~1"
+shift
+if "%~1" NEQ "" goto set_all_arg
+ipmitool%paraI%%paraU%%paraP% -H %all_args%
 exit /b
 
 :usage
