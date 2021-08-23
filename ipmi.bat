@@ -281,12 +281,13 @@ if /i "%~2"=="monitor" (
 )
 pushd %~dp0
 set "customCmd="
-if exist "custom\%~2.txt" for /f "usebackq delims=" %%i in ("custom\%~2.txt") do if not defined customCmd set "customCmd=%%i"
-popd
-if defined customCmd (
-    ipmitool%paraI%%paraU%%paraP% -H %hostExec% %customCmd%
-    exit /b
+set "customFound="
+if exist "custom\%~2.txt" for /f "usebackq eol=# delims=" %%i in ("custom\%~2.txt") do (
+    if not defined customFound set "customFound=yes"
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% %%~i
 )
+popd
+if defined customFound exit /b
 goto default
 
 :loopCmdPre
@@ -512,11 +513,12 @@ echo;
 echo;
 echo Custom commands
 echo;
-echo     write ipmi command to custom\^<command^>.txt
+echo     Write ipmi command to custom\^<command^>.txt, one command per line.
+echo     Lines starting with # will be treated as comments.
 echo;
 echo Example:
 echo;
-echo     write 'raw 0x0 0x9 0x5 0x0 0x0' ^(without quotation marks^) to file
+echo     write 'raw 0x0 0x9 0x5 0x0 0x0' ^(without quotes^) to file
 echo     custom\getbootorder.txt, and then you can use command:
 echo        ipmi ^<IP^> getbootorder
 echo     as a shortcut to command:
