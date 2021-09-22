@@ -1,3 +1,9 @@
+5.3.2 - 2021-09-22
+
+	* Add multi-line custom command support
+	* Lines starting with '#' in custom command will be comments
+	* Make custom commands have the highest priority
+
 5.3.1 - 2021-08-23
 
 	* Fix an issue about -I/U/P parameters.
