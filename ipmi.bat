@@ -145,6 +145,15 @@ if "%~2"=="" (
     ping %hostExec% -n 2
     exit /b
 )
+pushd %~dp0
+set "customCmd="
+set "customFound="
+if exist "custom\%~2.txt" for /f "usebackq eol=# delims=" %%i in ("custom\%~2.txt") do (
+    if not defined customFound set "customFound=yes"
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% %%~i
+)
+popd
+if defined customFound exit /b
 if /i "%~2"=="t" if "%~3"=="" (
     ping -t %hostExec%
     exit /b
@@ -279,15 +288,6 @@ if /i "%~2"=="monitor" (
         exit /b
     )
 )
-pushd %~dp0
-set "customCmd="
-set "customFound="
-if exist "custom\%~2.txt" for /f "usebackq eol=# delims=" %%i in ("custom\%~2.txt") do (
-    if not defined customFound set "customFound=yes"
-    ipmitool%paraI%%paraU%%paraP% -H %hostExec% %%~i
-)
-popd
-if defined customFound exit /b
 goto default
 
 :loopCmdPre
@@ -515,6 +515,10 @@ echo Custom commands
 echo;
 echo     Write ipmi command to custom\^<command^>.txt, one command per line.
 echo     Lines starting with # will be treated as comments.
+echo
+echo     Custom commands have higher priorities, and can only contain
+echo     original ipmitool commands ^(i.e. cannot contain commands provided
+echo     by this script or other custom commands^).
 echo;
 echo Example:
 echo;
