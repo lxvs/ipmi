@@ -1,16 +1,17 @@
 @echo off
 @setlocal enableExtensions enableDelayedExpansion
 
-@REM --- default options are set here!
+set "precd=%cd%"
+if "%precd:~-1%" == "\" set "precd=%precd:~0,-1%"
+@pushd "%~dp0"
 
 @if not defined defaultHostPrefix set "defaultHostPrefix=100.2.76"
 @if not defined bmcUsername set "bmcUsername=admin"
 @if not defined bmcPassword set "bmcPassword=admin"
 @if not defined ipmiInterface set "ipmiInterface=lanplus"
 
-@if not defined g_colorEnabled set /a "g_colorEnabled=1"
+@if not defined globalColorEnabled set /a "globalColorEnabled=1"
 
-@REM - Connection Monitor settings
 @if not defined cmPingRetry set /a "cmPingRetry=3"
 @if not defined cmEwsRetry set /a "cmEwsRetry=2"
 @if not defined cmLogLvl set /a "cmLogLvl=2"
@@ -18,19 +19,15 @@
 @if not defined cmEwsTimeOut_s set /a "cmEwsTimeout_s=1"
 @if not defined cmPingTimeout_ms set /a "cmPingTimeout_ms=100"
 
-@REM - LOOP and MONITOR settings
 @if not defined loopShowTimeStamps set /a "loopShowTimeStamps=1"
 @if not defined monitorShowTimeStamps set /a "monitorShowTimeStamps=1"
 @if not defined loopInterval_s set /a "loopInterval_s=30"
 @if not defined monitorInterval_s set /a "monitorInterval_s=30"
 
-@REM --- settings end
+@if not defined solWorkFolder set "solWorkFolder=%cd%\log\sol"
+@if not defined cmWorkFolder set "cmWorkFolder=%cd%\log\cm"
 
-set "precd=%cd%"
-if "%precd:~-1%" == "\" set "precd=%precd:~0,-1%"
-@pushd "%~dp0"
-
-@if "%g_colorEnabled%" == "1" (
+@if "%globalColorEnabled%" == "1" (
     @set "redPre=[91m"
     @set "greenPre=[92m"
     @set "yellowPre=[93m"
@@ -538,9 +535,9 @@ exit /b
 
 :LFN
 call:GetTime lfnYear lfnMon lfnDay lfnHour lfnMin
-set "lfnWf=%cd%\SolLogs\%lfnYear%-%lfnMon%-%lfnDay%"
+set "lfnWf=%solWorkFolder%\%lfnYear%-%lfnMon%-%lfnDay%"
 if "%~3"=="1" if not exist "%lfnWf%" md "%lfnWf%"
-set "%2=%lfnWf%\%1.%lfnHour%%lfnMin%.log"
+set "%2=%lfnWf%\%1-%lfnHour%.%lfnMin%.log"
 exit /b
 
 :SOL
@@ -589,8 +586,7 @@ exit /b %2
 
 :connectionMonitor
 @title %hostExec%
-set "cmWf=%cd%\ConnectionLogs"
-if not exist "%cmWf%" md "%cmWf%"
+if not exist "%cmWorkFolder%" md "%cmWorkFolder%"
 set "cmCurrentStatus="
 set "cmEwsStatus="
 set "cmLastHttpCode="
@@ -610,8 +606,8 @@ if "%cmVer%"=="1" (
     call:write "EWS retry:     %cmEwsRetry%" 0 0
     call:write "EWS timeout:   %cmEwsTimeout_s% s" 0 0
     call:write "Log level:     %cmLogLvl%" 0 0
-    if %cmLogLvl% GTR 0 call:write "Log folder:    %cmWf%" 0 0
-) else call:write "Log folder:    %cmWf%" 0 0
+    if %cmLogLvl% GTR 0 call:write "Log folder:    %cmWorkFolder%" 0 0
+) else call:write "Log folder:    %cmWorkFolder%" 0 0
 call:write "------------------------------------------------------" 0 0
 
 :loop
@@ -772,10 +768,10 @@ if "%cmIfts%" == "1" (
 set "cmLogMsg=%~1"
 if %cmMsgLvl% EQU 0 @echo %cmpre%%cmTimeStamp% %cmLogMsg%%cmsuf%
 if %cmMsgLvl% GEQ %cmLogLvl% exit /b 0
-if not exist "%cmWf%" md "%cmWf%"
-if %cmMsgLvl% EQU 0 >>"%cmWf%\%hostExec%.log" echo %cmTimeStamp% %cmLogMsg%
+if not exist "%cmWorkFolder%" md "%cmWorkFolder%"
+if %cmMsgLvl% EQU 0 >>"%cmWorkFolder%\%hostExec%.log" echo %cmTimeStamp% %cmLogMsg%
 if %cmLogLvl% LEQ 1 exit /b 0
-if %cmMsgLvl% LSS %cmLogLvl% >>"%cmWf%\%hostExec%.verbose.log" echo %cmTimeStamp% %cmLogMsg%
+if %cmMsgLvl% LSS %cmLogLvl% >>"%cmWorkFolder%\%hostExec%.verbose.log" echo %cmTimeStamp% %cmLogMsg%
 exit /b 0
 
 :GetTime
