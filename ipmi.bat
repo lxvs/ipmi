@@ -567,7 +567,11 @@ if not defined solLfn (call:LFN %hostExec% solLfn 1)
 )
 @echo ^> Activated SOL, saving to %SolLfn%
 explorer /select,"%solLfn%"
-1>"%solLfn%" 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
+if exist tee.exe (
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate | tee.exe "%solLfn%"
+) else (
+    1>"%solLfn%" 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
+)
 if %errorlevel% NEQ 0 (
     call:err fatal 4190 "SOL: failed to activate SOL" "See %SolLfn% for details"
     exit /b
