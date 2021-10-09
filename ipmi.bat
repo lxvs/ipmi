@@ -568,7 +568,7 @@ if not defined solLfn (call:LFN %hostExec% solLfn 1)
 @echo ^> Activated SOL, saving to %SolLfn%
 explorer /select,"%solLfn%"
 if exist tee.exe (
-    ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate | tee.exe "%solLfn%"
+    ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate 2>&1 | tee.exe "%solLfn%"
 ) else (
     1>"%solLfn%" 2>&1 ipmitool%paraI%%paraU%%paraP% -H %hostExec% sol activate
 )
