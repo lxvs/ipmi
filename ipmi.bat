@@ -9,6 +9,7 @@ if "%precd:~-1%" == "\" set "precd=%precd:~0,-1%"
 @if not defined bmcUsername set "bmcUsername=admin"
 @if not defined bmcPassword set "bmcPassword=admin"
 @if not defined ipmiInterface set "ipmiInterface=lanplus"
+@if not defined jviewerPath set "jviewerPath=%USERPROFILE%\Programs\JViewer\JViewer.jar"
 
 @if not defined globalColorEnabled set /a "globalColorEnabled=1"
 
@@ -54,29 +55,30 @@ if "%~1"=="" goto usage
 if /i "%~1"=="-v" goto version
 if /i "%~1"=="/v" goto version
 @echo %1 | findstr /i "version" >NUL && goto version
-if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set "paraU="
-if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set "paraP="
-if "%ipmiInterface%" NEQ "" (set "paraI= -I %ipmiInterface%") else set "paraI="
 
 :paramParse
 @echo %1 | findstr "\-I \-U \-P" >NUL && (
     if "%~1"=="-I" (
-        if "%~2" NEQ "" set "paraI= -I %~2"
+        if "%~2" NEQ "" set "ipmiInterface=%~2"
         shift
         shift
         goto paramParse
     ) else if "%~1"=="-U" (
-        if "%~2" NEQ "" set "paraU= -U %~2"
+        if "%~2" NEQ "" set "bmcUsername=%~2"
         shift
         shift
         goto paramParse
     ) else if "%~1"=="-P" (
-        if "%~2" NEQ "" set "paraP= -P %~2"
+        if "%~2" NEQ "" set "bmcPassword=%~2"
         shift
         shift
         goto paramParse
     )
 )
+
+if "%bmcUsername%" NEQ "" (set "paraU= -U %bmcUsername%") else set "paraU="
+if "%bmcPassword%" NEQ "" (set "paraP= -P %bmcPassword%") else set "paraP="
+if "%ipmiInterface%" NEQ "" (set "paraI= -I %ipmiInterface%") else set "paraI="
 
 if "%cmColorEnabled%"=="1" (
     @set "errPre=%redPre%"
@@ -284,6 +286,14 @@ if /i "%~2"=="monitor" (
         call:err Fatal 2740 "No command provided!"
         exit /b
     )
+)
+if /i "%~2" == "kvm" if "%~3" == "" (
+    if not exist "%jviewerPath%" (
+        call:err Fatal 2910 "Could not find JViewer.jar in %jviewerPath%" "Please defined the path ti JViewer.jar in variable 'jviewerPath'."
+        exit /b
+    )
+    start "" "%jviewerPath%" -hostname "%hostExec%" -u "%bmcUsername%" -p "%bmcPassword%" -webport 443
+    exit /b
 )
 goto default
 
