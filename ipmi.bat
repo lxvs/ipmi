@@ -45,7 +45,7 @@ if "%precd:~-1%" == "\" set "precd=%precd:~0,-1%"
     set "cyanPre="
     set "clrSuf="
 )
-@set "_ver=5.3.2"
+@set "_ver=5.4.0"
 @title IPMI %_ver%
 if "%~1"=="" goto usage
 @set "cmLogLvlTmp="
