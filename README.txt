@@ -4,6 +4,12 @@
 
 A convenient script of IPMI tool.
 
+Retired
+=======
+
+This ipmi script was retired on November 3rd, 2021, superseded by Johnny
+the Sysadmin (https://github.com/lxvs/jsa).
+
 Usage
 =====
 

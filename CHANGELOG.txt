@@ -1,3 +1,9 @@
+5.4.0 - 2021-10-25
+
+	* Add KVM operation.
+	* Tee SOL output instead of redirection.
+	* Reorganize default log folders.
+
 5.3.2 - 2021-09-22
 
 	* Add multi-line custom command support
